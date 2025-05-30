@@ -4,7 +4,7 @@ import { User } from '../modules/User/user.model';
 
 const superUser = {
   id: '0001',
-  email: 'abedinforhan@gmail.com',
+  email: 'superAdmin@gmail.com',
   password: config.super_admin_password,
   needsPasswordChange: false,
   role: USER_ROLE.superAdmin,

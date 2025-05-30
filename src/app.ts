@@ -21,7 +21,7 @@ app.use(cors({ origin: ['http://localhost:5173'], credentials: true }));
 app.use('/api/v1', router);
 
 app.get('/', (req: Request, res: Response) => {
-  res.send('Hi Next Level Developer !');
+  res.send('Welcome to Academic Managements!');
 });
 
 app.use(globalErrorHandler);
