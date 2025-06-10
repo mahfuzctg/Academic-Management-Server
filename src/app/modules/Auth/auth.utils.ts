@@ -1,13 +1,7 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
-interface CustomJwtPayload extends JwtPayload {
-  userId: string;
-
-  role: string;
-}
-
 export const createToken = (
-  jwtPayload: CustomJwtPayload,
+  jwtPayload: { userId: string; role: string },
   secret: string,
   expiresIn: string,
 ) => {
@@ -16,9 +10,6 @@ export const createToken = (
   });
 };
 
-export const verifyToken = (
-  token: string,
-  secret: string,
-): CustomJwtPayload => {
-  return jwt.verify(token, secret) as CustomJwtPayload;
+export const verifyToken = (token: string, secret: string) => {
+  return jwt.verify(token, secret) as JwtPayload;
 };
