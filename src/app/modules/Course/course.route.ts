@@ -47,12 +47,7 @@ router.put(
 
 router.get(
   '/:courseId/get-faculties',
-  auth(
-    USER_ROLE.superAdmin,
-    USER_ROLE.admin,
-    USER_ROLE.faculty,
-    USER_ROLE.student,
-  ),
+
   CourseControllers.getFacultiesWithCourse,
 );
 
@@ -65,12 +60,7 @@ router.delete(
 
 router.get(
   '/',
-  auth(
-    USER_ROLE.superAdmin,
-    USER_ROLE.admin,
-    USER_ROLE.faculty,
-    USER_ROLE.student,
-  ),
+
   CourseControllers.getAllCourses,
 );
 

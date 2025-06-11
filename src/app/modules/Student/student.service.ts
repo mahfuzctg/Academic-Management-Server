@@ -37,38 +37,68 @@ const getSingleStudentFromDB = async (id: string) => {
   return result;
 };
 
+// Update own profile
+
 const updateStudentIntoDB = async (id: string, payload: Partial<TStudent>) => {
-  const { name, guardian, localGuardian, ...remainingStudentData } = payload;
+  const session = await mongoose.startSession();
 
-  const modifiedUpdatedData: Record<string, unknown> = {
-    ...remainingStudentData,
-  };
+  try {
+    session.startTransaction();
 
-  if (name && Object.keys(name).length) {
-    for (const [key, value] of Object.entries(name)) {
-      modifiedUpdatedData[`name.${key}`] = value;
+    const { name, guardian, localGuardian, user, ...remainingStudentData } =
+      payload;
+
+    const modifiedUpdatedData: Record<string, unknown> = {
+      ...remainingStudentData,
+    };
+
+    if (name && Object.keys(name).length) {
+      for (const [key, value] of Object.entries(name)) {
+        modifiedUpdatedData[`name.${key}`] = value;
+      }
     }
-  }
 
-  if (guardian && Object.keys(guardian).length) {
-    for (const [key, value] of Object.entries(guardian)) {
-      modifiedUpdatedData[`guardian.${key}`] = value;
+    if (guardian && Object.keys(guardian).length) {
+      for (const [key, value] of Object.entries(guardian)) {
+        modifiedUpdatedData[`guardian.${key}`] = value;
+      }
     }
-  }
 
-  if (localGuardian && Object.keys(localGuardian).length) {
-    for (const [key, value] of Object.entries(localGuardian)) {
-      modifiedUpdatedData[`localGuardian.${key}`] = value;
+    if (localGuardian && Object.keys(localGuardian).length) {
+      for (const [key, value] of Object.entries(localGuardian)) {
+        modifiedUpdatedData[`localGuardian.${key}`] = value;
+      }
     }
-  }
 
-  const result = await Student.findByIdAndUpdate(id, modifiedUpdatedData, {
-    new: true,
-    runValidators: true,
-  });
-  return result;
+    const existingStudent = await Student.findById(id).session(session);
+    if (!existingStudent) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Student not found');
+    }
+
+    const updatedStudent = await Student.findByIdAndUpdate(
+      id,
+      modifiedUpdatedData,
+      { new: true, runValidators: true, session },
+    );
+
+    // Update related user if needed
+    if (user && Object.keys(user).length > 0) {
+      await User.findByIdAndUpdate(existingStudent.user, user, {
+        new: true,
+        runValidators: true,
+        session,
+      });
+    }
+
+    await session.commitTransaction();
+    return updatedStudent;
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
 };
-
 const deleteStudentFromDB = async (id: string) => {
   const session = await mongoose.startSession();
 
