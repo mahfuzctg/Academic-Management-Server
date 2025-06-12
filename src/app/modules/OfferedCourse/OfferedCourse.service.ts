@@ -22,20 +22,8 @@ const createOfferedCourseIntoDB = async (payload: TOfferedCourse) => {
     days,
     startTime,
     endTime,
+    image,
   } = payload;
-
-  /**
-   * Step 1: check if the semester registration id is exists!
-   * Step 2: check if the academic faculty id is exists!
-   * Step 3: check if the academic department id is exists!
-   * Step 4: check if the course id is exists!
-   * Step 5: check if the faculty id is exists!
-   * Step 6: check if the department is belong to the  faculty
-   * Step 7: check if the same offered course same section in same registered semester exists
-   * Step 8: get the schedules of the faculties
-   * Step 9: check if the faculty is available at that time. If not then throw error
-   * Step 10: create the offered course
-   */
 
   //check if the semester registration id is exists!
   const isSemesterRegistrationExits =
@@ -128,6 +116,7 @@ const createOfferedCourseIntoDB = async (payload: TOfferedCourse) => {
   const result = await OfferedCourse.create({
     ...payload,
     academicSemester,
+    image,
   });
   return result;
 };

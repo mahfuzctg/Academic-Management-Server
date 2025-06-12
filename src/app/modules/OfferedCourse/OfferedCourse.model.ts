@@ -9,6 +9,10 @@ const offeredCourseSchema = new mongoose.Schema<TOfferedCourse>(
       required: true,
       ref: 'SemesterRegistration',
     },
+    image: {
+      type: String,
+      required: false,
+    },
     academicSemester: {
       type: Schema.Types.ObjectId,
       required: true,
