@@ -68,10 +68,11 @@ const createStudentIntoDB = async (
       const path = file?.path;
 
       //send image to cloudinary
+      console.log({ imageName });
       const { secure_url } = await sendImageToCloudinary(imageName, path);
       payload.profileImg = secure_url as string;
     }
-
+    console.log('okok', payload);
     // create a user (transaction-1)
     const newUser = await User.create([userData], { session }); // array
 

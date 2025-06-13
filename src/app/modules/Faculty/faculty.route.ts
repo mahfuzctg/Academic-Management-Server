@@ -26,10 +26,6 @@ router.delete(
   FacultyControllers.deleteFaculty,
 );
 
-router.get(
-  '/',
-  auth(USER_ROLE.superAdmin, USER_ROLE.admin, USER_ROLE.faculty),
-  FacultyControllers.getAllFaculties,
-);
+router.get('/', FacultyControllers.getAllFaculties);
 
 export const FacultyRoutes = router;

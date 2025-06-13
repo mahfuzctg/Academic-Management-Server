@@ -31,10 +31,10 @@ const getAllAcademicFaculties = catchAsync(async (req, res) => {
 });
 
 const getSingleAcademicFaculty = catchAsync(async (req, res) => {
-  const { facultyId } = req.params;
+  const { id } = req.params;
 
   const result =
-    await AcademicFacultyServices.getSingleAcademicFacultyFromDB(facultyId);
+    await AcademicFacultyServices.getSingleAcademicFacultyFromDB(id);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
