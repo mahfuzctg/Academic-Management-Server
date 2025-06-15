@@ -19,6 +19,8 @@ const createSemesterRegistrationIntoDB = async (
    * Step4: Create the semester registration
    */
 
+  console.log('inside service', payload);
+
   const academicSemester = payload?.academicSemester;
 
   //check if there any registered semester that is already 'UPCOMING'|'ONGOING'
