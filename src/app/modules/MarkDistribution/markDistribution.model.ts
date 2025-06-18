@@ -4,11 +4,7 @@ import { TMarkDistribution } from './MarkDistribution.Interface';
 const markDistributionSchema = new Schema<TMarkDistribution>(
   {
     student: { type: Schema.Types.ObjectId, ref: 'Student', required: true },
-    course: {
-      type: Schema.Types.ObjectId,
-      ref: 'OfferedCourse',
-      required: true,
-    },
+    course: { type: Schema.Types.ObjectId, ref: 'Course', required: true },
     classTests: {
       type: [Number],
       validate: [
@@ -17,7 +13,11 @@ const markDistributionSchema = new Schema<TMarkDistribution>(
       ],
       required: true,
     },
-    finalExam: { type: Number, required: true },
+    subjects: {
+      type: Map,
+      of: Number,
+      required: true,
+    },
     totalMarks: { type: Number },
     resultStatus: {
       type: String,

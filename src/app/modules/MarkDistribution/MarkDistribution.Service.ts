@@ -1,30 +1,47 @@
 import httpStatus from 'http-status';
+import { Types } from 'mongoose';
 import AppError from '../../errors/AppError';
-
-import { OfferedCourse } from '../OfferedCourse/OfferedCourse.model';
+import { Course } from '../Course/course.model';
 import { Student } from '../Student/student.model';
 import { TMarkDistribution } from './MarkDistribution.Interface';
 import { MarkDistribution } from './markDistribution.model';
-import { calculateResult } from './MarkDistribution.utils';
+import { calculateSubjectResult } from './MarkDistribution.utils';
 
-const createMark = async (payload: TMarkDistribution) => {
+const createMarksBySubjects = async (payload: {
+  student: Types.ObjectId;
+  course: Types.ObjectId;
+  classTests?: number[]; // Optional but can be passed
+  subjects: Record<string, number>;
+}) => {
   const isStudent = await Student.exists({ _id: payload.student });
   if (!isStudent)
     throw new AppError(httpStatus.NOT_FOUND, 'Invalid Student ID');
 
-  const isCourse = await OfferedCourse.exists({ _id: payload.course });
+  const isCourse = await Course.exists({ _id: payload.course });
   if (!isCourse) throw new AppError(httpStatus.NOT_FOUND, 'Invalid Course ID');
 
-  const { total, status } = calculateResult(
-    payload.classTests,
-    payload.finalExam,
-  );
+  const subjectMarks = Object.values(payload.subjects || {});
+  const subjectTotal = subjectMarks.reduce((sum, mark) => sum + mark, 0);
+
+  const classTests = payload.classTests || [];
+  let classTestTotal = 0;
+  if (classTests.length === 4) {
+    const bestThree = classTests.sort((a, b) => b - a).slice(0, 3);
+    classTestTotal = bestThree.reduce((sum, mark) => sum + mark, 0);
+  }
+
+  const total = subjectTotal + classTestTotal;
+  const resultStatus = total >= 120 ? 'PASS' : 'FAIL';
 
   const result = await MarkDistribution.create({
-    ...payload,
+    student: payload.student,
+    course: payload.course,
+    subjects: payload.subjects,
+    classTests: payload.classTests,
     totalMarks: total,
-    resultStatus: status,
+    resultStatus,
   });
+
   return result;
 };
 
@@ -46,10 +63,13 @@ const updateMark = async (id: string, payload: Partial<TMarkDistribution>) => {
   const mark = await MarkDistribution.findById(id);
   if (!mark) throw new AppError(httpStatus.NOT_FOUND, 'Mark not found!');
 
-  const newCT = payload.classTests ?? mark.classTests;
-  const newFinal = payload.finalExam ?? mark.finalExam;
+  const updatedSubjects = payload.subjects ?? mark.subjects;
+  const updatedCT = payload.classTests ?? mark.classTests;
 
-  const { total, status } = calculateResult(newCT, newFinal);
+  const { total, status } = calculateSubjectResult(
+    updatedSubjects as Record<string, number>,
+    updatedCT,
+  );
 
   const result = await MarkDistribution.findByIdAndUpdate(
     id,
@@ -65,12 +85,11 @@ const updateMark = async (id: string, payload: Partial<TMarkDistribution>) => {
 };
 
 const deleteMark = async (id: string) => {
-  const result = await MarkDistribution.findByIdAndDelete(id);
-  return result;
+  return await MarkDistribution.findByIdAndDelete(id);
 };
 
 export const MarkDistributionService = {
-  createMark,
+  createMarksBySubjects,
   getAllMarks,
   getSingleMark,
   updateMark,

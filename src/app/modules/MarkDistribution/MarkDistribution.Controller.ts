@@ -5,14 +5,28 @@ import sendResponse from '../../utils/sendResponse';
 import { MarkDistributionService } from './MarkDistribution.Service';
 
 const createMark = catchAsync(async (req: Request, res: Response) => {
-  const result = await MarkDistributionService.createMark(req.body);
+  const result = await MarkDistributionService.createMarksBySubjects(req.body);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Marks distributed successfully!',
+    message: 'Marks distributed successfully! (CT + Final)',
     data: result,
   });
 });
+
+const createMarksBySubjects = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await MarkDistributionService.createMarksBySubjects(
+      req.body,
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Marks distributed by subject + class test successfully!',
+      data: result,
+    });
+  },
+);
 
 const getAllMarks = catchAsync(async (req: Request, res: Response) => {
   const result = await MarkDistributionService.getAllMarks(req.query);
@@ -59,6 +73,7 @@ const deleteMark = catchAsync(async (req: Request, res: Response) => {
 
 export const MarkDistributionController = {
   createMark,
+  createMarksBySubjects,
   getAllMarks,
   getSingleMark,
   updateMark,
