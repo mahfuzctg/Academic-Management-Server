@@ -8,8 +8,13 @@ import { BlogValidations } from './blog.validation';
 const router = express.Router();
 
 router.post(
-  '/create',
-  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
+  '/',
+  auth(
+    USER_ROLE.superAdmin,
+    USER_ROLE.admin,
+    USER_ROLE.student,
+    USER_ROLE.faculty,
+  ),
   validateRequest(BlogValidations.createBlogZodSchema),
   BlogControllers.createBlog,
 );
