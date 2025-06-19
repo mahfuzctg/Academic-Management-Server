@@ -18,15 +18,17 @@ app.use(cookieParser());
 app.use(
   cors({
     origin: [
-      '*',
       'http://localhost:5173',
       'https://academic-management-nine.vercel.app',
-      'https://academic-management-server-ten.vercel.app/api/v1/enrolled-courses/my-enrolled-courses',
+      'https://academic-management-server-ten.vercel.app/api/v1',
     ],
-    credentials: false,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   }),
 );
 
+app.options('*', cors());
 // application routes
 app.use('/api/v1', router);
 
