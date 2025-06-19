@@ -20,6 +20,7 @@ import {
   generateFacultyId,
   generateStudentId,
 } from './user.utils';
+import { Console } from 'console';
 
 const createStudentIntoDB = async (
   file: any,
@@ -190,7 +191,7 @@ const createAdminIntoDB = async (
   //set admin email
   userData.email = payload.email;
   const session = await mongoose.startSession();
-
+  console.log('dat', userData);
   try {
     session.startTransaction();
     //set  generated id

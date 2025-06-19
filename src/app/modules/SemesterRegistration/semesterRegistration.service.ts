@@ -12,15 +12,6 @@ import { SemesterRegistration } from './semesterRegistration.model';
 const createSemesterRegistrationIntoDB = async (
   payload: TSemesterRegistration,
 ) => {
-  /**
-   * Step1: Check if there any registered semester that is already 'UPCOMING'|'ONGOING'
-   * Step2: Check if the semester is exist
-   * Step3: Check if the semester is already registered!
-   * Step4: Create the semester registration
-   */
-
-  console.log('inside service', payload);
-
   const academicSemester = payload?.academicSemester;
 
   //check if there any registered semester that is already 'UPCOMING'|'ONGOING'

@@ -19,12 +19,9 @@ app.use(
   cors({
     origin: [
       'http://localhost:5173',
-      'https://academic-management-nine.vercel.app',
-      'https://academic-management-server-ten.vercel.app/api/v1',
+      'https://academic-management-client-ten.vercel.app',
     ],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
   }),
 );
 

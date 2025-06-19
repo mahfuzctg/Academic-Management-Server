@@ -6,8 +6,10 @@ import { CourseRoutes } from '../modules/Course/course.route';
 import { AcademicDepartmentRoutes } from '../modules/AcademicDepartment/academicDepartment.route';
 import { AcademicFacultyRoutes } from '../modules/AcademicFaculty/academicFaculty.route';
 import { AcademicSemesterRoutes } from '../modules/AcademicSemester/academicSemester.route';
+import { BlogRoutes } from '../modules/Blog/blog.route';
 import { EnrolledCourseRoutes } from '../modules/EnrolledCourse/enrolledCourse.route';
 import { FacultyRoutes } from '../modules/Faculty/faculty.route';
+import { MarkDistributionRoutes } from '../modules/MarkDistribution/markDistribution.route';
 import { offeredCourseRoutes } from '../modules/OfferedCourse/OfferedCourse.route';
 import { semesterRegistrationRoutes } from '../modules/SemesterRegistration/semesterRegistration.route';
 import { StudentRoutes } from '../modules/Student/student.route';
@@ -55,6 +57,14 @@ const moduleRoutes = [
   {
     path: '/offered-courses',
     route: offeredCourseRoutes,
+  },
+  {
+    path: '/mark-distribution',
+    route: MarkDistributionRoutes,
+  },
+  {
+    path: '/Blog',
+    route: BlogRoutes,
   },
   {
     path: '/auth',
