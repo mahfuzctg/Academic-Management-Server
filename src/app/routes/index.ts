@@ -63,7 +63,7 @@ const moduleRoutes = [
     route: MarkDistributionRoutes,
   },
   {
-    path: '/Blog',
+    path: '/blogs',
     route: BlogRoutes,
   },
   {

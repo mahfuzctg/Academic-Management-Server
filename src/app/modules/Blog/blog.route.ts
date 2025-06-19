@@ -25,15 +25,35 @@ router.get('/:id', BlogControllers.getSingleBlog);
 
 router.patch(
   '/:id',
-  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
+  auth(
+    USER_ROLE.superAdmin,
+    USER_ROLE.admin,
+    USER_ROLE.student,
+    USER_ROLE.faculty,
+  ),
   validateRequest(BlogValidations.updateBlogZodSchema),
   BlogControllers.updateBlog,
 );
 
 router.delete(
   '/:id',
-  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
+  auth(
+    USER_ROLE.superAdmin,
+    USER_ROLE.admin,
+    USER_ROLE.student,
+    USER_ROLE.faculty,
+  ),
   BlogControllers.deleteBlog,
+);
+router.patch(
+  '/:id/vote',
+  auth(
+    USER_ROLE.superAdmin,
+    USER_ROLE.admin,
+    USER_ROLE.student,
+    USER_ROLE.faculty,
+  ),
+  BlogControllers.voteBlog,
 );
 
 export const BlogRoutes = router;

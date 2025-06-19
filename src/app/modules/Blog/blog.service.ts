@@ -23,11 +23,19 @@ const updateBlogIntoDB = async (id: string, payload: Partial<TBlog>) => {
 const deleteBlogFromDB = async (id: string) => {
   return await Blog.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
 };
-
+const voteBlogById = async (id: string) => {
+  const blog = await Blog.findByIdAndUpdate(
+    id,
+    { $inc: { votes: 1 } }, // increment by 1
+    { new: true },
+  );
+  return blog;
+};
 export const BlogServices = {
   createBlogIntoDB,
   getAllBlogsFromDB,
   getSingleBlogFromDB,
   updateBlogIntoDB,
   deleteBlogFromDB,
+  voteBlogById,
 };

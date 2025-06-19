@@ -55,6 +55,16 @@ const deleteBlog = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const voteBlog = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await BlogServices.voteBlogById(id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Voted successfully',
+    data: result,
+  });
+});
 
 export const BlogControllers = {
   createBlog,
@@ -62,4 +72,5 @@ export const BlogControllers = {
   getSingleBlog,
   updateBlog,
   deleteBlog,
+  voteBlog,
 };

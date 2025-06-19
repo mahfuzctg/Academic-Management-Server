@@ -6,4 +6,5 @@ export type TBlog = {
   bannerImage?: string;
   profileImage?: string;
   isDeleted?: boolean;
+  votes?: number;
 };
