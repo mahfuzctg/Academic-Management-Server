@@ -10,6 +10,7 @@ import { Student } from '../Student/student.model';
 import { TOfferedCourse } from './OfferedCourse.interface';
 import { OfferedCourse } from './OfferedCourse.model';
 import { hasTimeConflict } from './OfferedCourse.utils';
+import { Document, Types } from 'mongoose';
 
 const createOfferedCourseIntoDB = async (payload: TOfferedCourse) => {
   const {
@@ -433,6 +434,41 @@ const deleteOfferedCourseFromDB = async (id: string) => {
   return result;
 };
 
+const getOfferedCoursesBySemesterFromDB = async (
+  academicSemesterId: string,
+) => {
+  const result = await OfferedCourse.find({
+    academicSemester: academicSemesterId,
+  })
+    .populate('course')
+    .populate('faculty')
+    .populate('academicDepartment')
+    .populate('academicFaculty')
+    .populate('academicSemester')
+    .populate('semesterRegistration');
+  return result;
+};
+
+const getOfferedCoursesByYearFromDB = async (academicYearId: string) => {
+  // Find all semesters for this year
+  const { AcademicSemester } = await import(
+    '../AcademicSemester/academicSemester.model'
+  );
+  const semesters: Document<{ _id: Types.ObjectId }>[] =
+    await AcademicSemester.find({ academicYear: academicYearId }).select('_id');
+  const semesterIds = semesters.map((s) => s._id);
+  const result = await OfferedCourse.find({
+    academicSemester: { $in: semesterIds },
+  })
+    .populate('course')
+    .populate('faculty')
+    .populate('academicDepartment')
+    .populate('academicFaculty')
+    .populate('academicSemester')
+    .populate('semesterRegistration');
+  return result;
+};
+
 export const OfferedCourseServices = {
   createOfferedCourseIntoDB,
   getAllOfferedCoursesFromDB,
@@ -440,4 +476,6 @@ export const OfferedCourseServices = {
   getSingleOfferedCourseFromDB,
   deleteOfferedCourseFromDB,
   updateOfferedCourseIntoDB,
+  getOfferedCoursesBySemesterFromDB,
+  getOfferedCoursesByYearFromDB,
 };

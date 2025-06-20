@@ -88,6 +88,32 @@ const deleteOfferedCourseFromDB = catchAsync(
   },
 );
 
+const getOfferedCoursesBySemester = catchAsync(async (req, res) => {
+  const { academicSemesterId } = req.params;
+  const result =
+    await OfferedCourseServices.getOfferedCoursesBySemesterFromDB(
+      academicSemesterId,
+    );
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Offered courses for the semester retrieved successfully!',
+    data: result,
+  });
+});
+
+const getOfferedCoursesByYear = catchAsync(async (req, res) => {
+  const { academicYearId } = req.params;
+  const result =
+    await OfferedCourseServices.getOfferedCoursesByYearFromDB(academicYearId);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Offered courses for the year retrieved successfully!',
+    data: result,
+  });
+});
+
 export const OfferedCourseControllers = {
   createOfferedCourse,
   getAllOfferedCourses,
@@ -95,4 +121,6 @@ export const OfferedCourseControllers = {
   getSingleOfferedCourses,
   updateOfferedCourse,
   deleteOfferedCourseFromDB,
+  getOfferedCoursesBySemester,
+  getOfferedCoursesByYear,
 };
