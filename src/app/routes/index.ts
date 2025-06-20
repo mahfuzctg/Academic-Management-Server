@@ -9,6 +9,7 @@ import { AcademicSemesterRoutes } from '../modules/AcademicSemester/academicSeme
 import { BlogRoutes } from '../modules/Blog/blog.route';
 import { EnrolledCourseRoutes } from '../modules/EnrolledCourse/enrolledCourse.route';
 import { FacultyRoutes } from '../modules/Faculty/faculty.route';
+import { JobRoutes } from '../modules/Job/job.route';
 import { MarkDistributionRoutes } from '../modules/MarkDistribution/markDistribution.route';
 import { offeredCourseRoutes } from '../modules/OfferedCourse/OfferedCourse.route';
 import { semesterRegistrationRoutes } from '../modules/SemesterRegistration/semesterRegistration.route';
@@ -65,6 +66,10 @@ const moduleRoutes = [
   {
     path: '/blogs',
     route: BlogRoutes,
+  },
+  {
+    path: '/jobs',
+    route: JobRoutes,
   },
   {
     path: '/auth',

@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { model, Schema } from 'mongoose';
 import { TJob } from './job.interface';
 
 const jobSchema = new Schema<TJob>(
@@ -19,6 +19,12 @@ const jobSchema = new Schema<TJob>(
       required: true,
     },
     isDeleted: { type: Boolean, default: false },
+    appliedBy: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
   },
   { timestamps: true },
 );

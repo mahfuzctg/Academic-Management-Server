@@ -11,6 +11,9 @@ export type TJob = {
   maxPrice: number;
   deadline: string;
   vacancy: number;
+
   workMode: 'remote' | 'onsite' | 'hybrid';
   isDeleted?: boolean;
+  appliedBy?: Types.ObjectId[];
+  //   appliedBy?: string[];
 };

@@ -15,6 +15,7 @@ const createJob = catchAsync(async (req, res) => {
 
 const getAllJobs = catchAsync(async (_req, res) => {
   const result = await JobServices.getAllJobs();
+
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -56,10 +57,25 @@ const deleteJob = catchAsync(async (req, res) => {
   });
 });
 
+const applyJobController = catchAsync(async (req, res) => {
+  const { id } = req.params; // job id
+  const userId = req.user._id; // user id from auth middleware
+
+  const result = await JobServices.applyJob(id, userId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Applied for job successfully',
+    data: result,
+  });
+});
+
 export const JobControllers = {
   createJob,
   getAllJobs,
   getSingleJob,
   updateJob,
   deleteJob,
+  applyJob: applyJobController,
 };
