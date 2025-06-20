@@ -3,6 +3,7 @@ import { Grade } from './enrolledCourse.constant';
 import {
   TEnrolledCourse,
   TEnrolledCourseMarks,
+  TSubjectMarks,
 } from './enrolledCourse.interface';
 
 const courseMarksSchema = new Schema<TEnrolledCourseMarks>(
@@ -31,6 +32,16 @@ const courseMarksSchema = new Schema<TEnrolledCourseMarks>(
       max: 50,
       default: 0,
     },
+  },
+  {
+    _id: false,
+  },
+);
+
+const subjectMarksSchema = new Schema<TSubjectMarks>(
+  {
+    subjectName: { type: String, required: true },
+    marks: courseMarksSchema,
   },
   {
     _id: false,
@@ -86,6 +97,9 @@ const enrolledCourseSchema = new Schema<TEnrolledCourse>({
     type: courseMarksSchema,
     default: {},
   },
+  subjectMarks: {
+    type: [subjectMarksSchema],
+  },
   grade: {
     type: String,
     enum: Grade,
@@ -97,7 +111,7 @@ const enrolledCourseSchema = new Schema<TEnrolledCourse>({
     max: 4,
     default: 0,
   },
-  isCompleted: {
+  isPassed: {
     type: Boolean,
     default: false,
   },

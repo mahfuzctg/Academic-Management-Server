@@ -261,7 +261,13 @@ const updateEnrolledCourseMarksIntoDB = async (
   facultyId: string,
   payload: Partial<TEnrolledCourse>,
 ) => {
-  const { semesterRegistration, offeredCourse, student, courseMarks } = payload;
+  const {
+    semesterRegistration,
+    offeredCourse,
+    student,
+    courseMarks,
+    subjectMarks,
+  } = payload;
 
   const isSemesterRegistrationExists =
     await SemesterRegistration.findById(semesterRegistration);
@@ -298,34 +304,63 @@ const updateEnrolledCourseMarksIntoDB = async (
   });
 
   if (!isCourseBelongToFaculty) {
-    throw new AppError(httpStatus.FORBIDDEN, 'You are forbidden! !');
+    throw new AppError(httpStatus.FORBIDDEN, 'You are forbidden!');
   }
 
-  const modifiedData: Record<string, unknown> = {
-    ...courseMarks,
-  };
+  const modifiedData: Record<string, any> = {};
 
-  if (courseMarks?.finalTerm) {
-    const { classTest1, classTest2, midTerm, finalTerm } =
-      isCourseBelongToFaculty.courseMarks;
+  if (subjectMarks && subjectMarks.length > 0) {
+    modifiedData.subjectMarks = subjectMarks.map((subjectMark) => {
+      const existingSubject = isCourseBelongToFaculty.subjectMarks?.find(
+        (s) => s.subjectName === subjectMark.subjectName,
+      );
+      return {
+        subjectName: subjectMark.subjectName,
+        marks: {
+          ...existingSubject?.marks,
+          ...subjectMark.marks,
+        },
+      };
+    });
+
+    const totalMarksForSubjects =
+      modifiedData.subjectMarks?.reduce((acc, subject) => {
+        const currentTotal =
+          (subject.marks.classTest1 || 0) +
+          (subject.marks.midTerm || 0) +
+          (subject.marks.classTest2 || 0) +
+          (subject.marks.finalTerm || 0);
+        return acc + currentTotal;
+      }, 0) || 0;
+
+    const { grade, gradePoints } = calculateGradeAndPoints(
+      totalMarksForSubjects,
+    );
+    modifiedData.grade = grade;
+    modifiedData.gradePoints = gradePoints;
+    modifiedData.isPassed = gradePoints > 0;
+  } else if (courseMarks) {
+    const currentCourseMarks = isCourseBelongToFaculty.courseMarks;
+
+    modifiedData['courseMarks.classTest1'] =
+      courseMarks.classTest1 ?? currentCourseMarks.classTest1;
+    modifiedData['courseMarks.midTerm'] =
+      courseMarks.midTerm ?? currentCourseMarks.midTerm;
+    modifiedData['courseMarks.classTest2'] =
+      courseMarks.classTest2 ?? currentCourseMarks.classTest2;
+    modifiedData['courseMarks.finalTerm'] =
+      courseMarks.finalTerm ?? currentCourseMarks.finalTerm;
 
     const totalMarks =
-      Math.ceil(classTest1) +
-      Math.ceil(midTerm) +
-      Math.ceil(classTest2) +
-      Math.ceil(finalTerm);
+      (modifiedData['courseMarks.classTest1'] || 0) +
+      (modifiedData['courseMarks.midTerm'] || 0) +
+      (modifiedData['courseMarks.classTest2'] || 0) +
+      (modifiedData['courseMarks.finalTerm'] || 0);
 
-    const result = calculateGradeAndPoints(totalMarks);
-
-    modifiedData.grade = result.grade;
-    modifiedData.gradePoints = result.gradePoints;
-    modifiedData.isCompleted = true;
-  }
-
-  if (courseMarks && Object.keys(courseMarks).length) {
-    for (const [key, value] of Object.entries(courseMarks)) {
-      modifiedData[`courseMarks.${key}`] = value;
-    }
+    const { grade, gradePoints } = calculateGradeAndPoints(totalMarks);
+    modifiedData.grade = grade;
+    modifiedData.gradePoints = gradePoints;
+    modifiedData.isPassed = gradePoints > 0;
   }
 
   const result = await EnrolledCourse.findByIdAndUpdate(
