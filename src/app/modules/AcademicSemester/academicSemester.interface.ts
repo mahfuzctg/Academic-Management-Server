@@ -1,3 +1,5 @@
+import { Types } from 'mongoose';
+
 export type TMonths =
   | 'January'
   | 'February'
@@ -12,15 +14,32 @@ export type TMonths =
   | 'November'
   | 'December';
 
-export type TAcademicSemesterName = 'Autumn' | 'Summer' | 'Fall';
-export type TAcademicSemesterCode = '01' | '02' | '03';
+export type TAcademicSemesterName =
+  | '1st Semester'
+  | '2nd Semester'
+  | '3rd Semester'
+  | '4th Semester'
+  | '5th Semester'
+  | '6th Semester'
+  | '7th Semester'
+  | '8th Semester';
+export type TAcademicSemesterCode =
+  | '01'
+  | '02'
+  | '03'
+  | '04'
+  | '05'
+  | '06'
+  | '07'
+  | '08';
 
 export type TAcademicSemester = {
   name: TAcademicSemesterName;
   code: TAcademicSemesterCode;
-  year: string;
+
   startMonth: TMonths;
   endMonth: TMonths;
+  academicYear: Types.ObjectId;
 };
 
 export type TAcademicSemesterNameCodeMapper = {

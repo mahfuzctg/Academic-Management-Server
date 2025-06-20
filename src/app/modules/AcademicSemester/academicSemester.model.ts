@@ -13,10 +13,6 @@ const acdemicSemesterSchema = new Schema<TAcademicSemester>(
       required: true,
       enum: AcademicSemesterName,
     },
-    year: {
-      type: String,
-      required: true,
-    },
     code: {
       type: String,
       required: true,
@@ -32,6 +28,10 @@ const acdemicSemesterSchema = new Schema<TAcademicSemester>(
       required: true,
       enum: Months,
     },
+    academicYear: {
+      type: Schema.Types.ObjectId,
+      ref: 'AcademicYear',
+    },
   },
   {
     timestamps: true,
@@ -40,7 +40,7 @@ const acdemicSemesterSchema = new Schema<TAcademicSemester>(
 
 acdemicSemesterSchema.pre('save', async function (next) {
   const isSemesterExists = await AcademicSemester.findOne({
-    year: this.year,
+    academicYear: this.academicYear,
     name: this.name,
   });
 
