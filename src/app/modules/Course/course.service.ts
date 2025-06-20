@@ -39,7 +39,8 @@ const getSingleCourseFromDB = async (id: string) => {
 };
 
 const updateCourseIntoDB = async (id: string, payload: Partial<TCourse>) => {
-  const { preRequisiteCourses, ...courseRemainingData } = payload;
+  const { preRequisiteCourses, availableSubjects, ...courseRemainingData } =
+    payload;
 
   const session = await mongoose.startSession();
 
@@ -95,6 +96,52 @@ const updateCourseIntoDB = async (id: string, payload: Partial<TCourse>) => {
         id,
         {
           $addToSet: { preRequisiteCourses: { $each: newPreRequisites } },
+        },
+        {
+          new: true,
+          runValidators: true,
+          session,
+        },
+      );
+
+      if (!newPreRequisiteCourses) {
+        throw new AppError(httpStatus.BAD_REQUEST, 'Failed to update course');
+      }
+    }
+
+    if (availableSubjects && availableSubjects.length > 0) {
+      // filter out the deleted fields
+      const deletedSubjects = availableSubjects
+        .filter((el) => el.name && el.isDeleted)
+        .map((el) => el.name);
+
+      const deletedPreRequisiteCourses = await Course.findByIdAndUpdate(
+        id,
+        {
+          $pull: {
+            availableSubjects: { name: { $in: deletedSubjects } },
+          },
+        },
+        {
+          new: true,
+          runValidators: true,
+          session,
+        },
+      );
+
+      if (!deletedPreRequisiteCourses) {
+        throw new AppError(httpStatus.BAD_REQUEST, 'Failed to update course');
+      }
+
+      // filter out the new course fields
+      const newSubjects = availableSubjects?.filter(
+        (el) => el.name && !el.isDeleted,
+      );
+
+      const newPreRequisiteCourses = await Course.findByIdAndUpdate(
+        id,
+        {
+          $addToSet: { availableSubjects: { $each: newSubjects } },
         },
         {
           new: true,

@@ -23,4 +23,5 @@ export type TEnrolledCourse = {
   grade: TGrade;
   gradePoints: number;
   isCompleted: boolean;
+  selectedSubjects?: string[];
 };

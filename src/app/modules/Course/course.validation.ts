@@ -5,6 +5,12 @@ const PreRequisiteCourseValidationSchema = z.object({
   isDeleted: z.boolean().optional(),
 });
 
+const SubjectValidationSchema = z.object({
+  name: z.string(),
+  credits: z.number(),
+  isDeleted: z.boolean().optional(),
+});
+
 const createCourseValidationSchema = z.object({
   body: z.object({
     title: z.string(),
@@ -13,11 +19,21 @@ const createCourseValidationSchema = z.object({
     credits: z.number(),
     preRequisiteCourses: z.array(PreRequisiteCourseValidationSchema).optional(),
     isDeleted: z.boolean().optional(),
+    subjectType: z.enum(['Theory', 'Lab', 'Project']),
+    note: z.string().optional(),
+    availableSubjects: z.array(SubjectValidationSchema).optional(),
+    subjectsToSelect: z.number().optional(),
   }),
 });
 
 const updatePreRequisiteCourseValidationSchema = z.object({
   course: z.string(),
+  isDeleted: z.boolean().optional(),
+});
+
+const updateSubjectValidationSchema = z.object({
+  name: z.string().optional(),
+  credits: z.number().optional(),
   isDeleted: z.boolean().optional(),
 });
 
@@ -31,6 +47,10 @@ const updateCourseValidationSchema = z.object({
       .array(updatePreRequisiteCourseValidationSchema)
       .optional(),
     isDeleted: z.boolean().optional(),
+    subjectType: z.enum(['Theory', 'Lab', 'Project']).optional(),
+    note: z.string().optional(),
+    availableSubjects: z.array(updateSubjectValidationSchema).optional(),
+    subjectsToSelect: z.number().optional(),
   }),
 });
 

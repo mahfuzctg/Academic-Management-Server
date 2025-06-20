@@ -23,7 +23,7 @@ const createEnrolledCourseIntoDB = async (
    * Step4: Create an enrolled course
    */
 
-  const { offeredCourse } = payload;
+  const { offeredCourse, selectedSubjects } = payload;
 
   const isOfferedCourseExists = await OfferedCourse.findById(offeredCourse);
 
@@ -52,7 +52,53 @@ const createEnrolledCourseIntoDB = async (
 
   // check total credits exceeds maxCredit
   const course = await Course.findById(isOfferedCourseExists.course);
-  const currentCredit = course?.credits;
+
+  if (!course) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Course not found!');
+  }
+
+  let currentCredit = 0;
+
+  if (course.availableSubjects && course.availableSubjects.length > 0) {
+    if (!selectedSubjects || selectedSubjects.length === 0) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        'You must select subjects for this course.',
+      );
+    }
+
+    if (
+      course.subjectsToSelect &&
+      selectedSubjects.length !== course.subjectsToSelect
+    ) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        `You must select exactly ${course.subjectsToSelect} subjects.`,
+      );
+    }
+
+    const availableSubjectNames = course.availableSubjects.map((s) => s.name);
+    for (const subjectName of selectedSubjects) {
+      if (!availableSubjectNames.includes(subjectName)) {
+        throw new AppError(
+          httpStatus.BAD_REQUEST,
+          `Invalid subject selected: ${subjectName}`,
+        );
+      }
+    }
+
+    currentCredit = course.availableSubjects
+      .filter((s) => selectedSubjects.includes(s.name))
+      .reduce((acc, s) => acc + s.credits, 0);
+  } else {
+    if (selectedSubjects && selectedSubjects.length > 0) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        'This course does not have selectable subjects.',
+      );
+    }
+    currentCredit = course?.credits;
+  }
 
   const semesterRegistration = await SemesterRegistration.findById(
     isOfferedCourseExists.semesterRegistration,
@@ -120,6 +166,7 @@ const createEnrolledCourseIntoDB = async (
           student: student._id,
           faculty: isOfferedCourseExists.faculty,
           isEnrolled: true,
+          selectedSubjects,
         },
       ],
       { session },

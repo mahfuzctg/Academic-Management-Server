@@ -101,6 +101,9 @@ const enrolledCourseSchema = new Schema<TEnrolledCourse>({
     type: Boolean,
     default: false,
   },
+  selectedSubjects: {
+    type: [String],
+  },
 });
 
 const EnrolledCourse = mongoose.model<TEnrolledCourse>(
