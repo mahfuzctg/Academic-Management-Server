@@ -56,10 +56,13 @@ const deleteBlog = catchAsync(async (req, res) => {
   });
 });
 const voteBlog = catchAsync(async (req, res) => {
-  const { id } = req.params;
-  const result = await BlogServices.voteBlogById(id);
+  const { id } = req.params; // blog id
+  const userId = req.user._id; // user id from auth middleware
+
+  const result = await BlogServices.voteBlog(id, userId);
+
   sendResponse(res, {
-    statusCode: httpStatus.OK,
+    statusCode: 200,
     success: true,
     message: 'Voted successfully',
     data: result,

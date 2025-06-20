@@ -1,13 +1,16 @@
 import { Types } from 'mongoose';
 
-export type TBlog = {
+export type TJob = {
   title: string;
   category: string;
   description: string;
-  link?: string;
   bannerImage?: string;
   profileImage?: string;
+  author: Types.ObjectId;
+  minPrice: number;
+  maxPrice: number;
+  deadline: string;
+  vacancy: number;
+  workMode: 'remote' | 'onsite' | 'hybrid';
   isDeleted?: boolean;
-  votes?: number;
-  votedBy?: Types.ObjectId[];
 };

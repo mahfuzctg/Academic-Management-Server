@@ -30,7 +30,16 @@ const blogSchema = new Schema<TBlog>(
       type: Boolean,
       default: false,
     },
-    votes: { type: Number, default: 0 },
+    votedBy: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
+    votes: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,
