@@ -15,5 +15,4 @@ export type TJob = {
   workMode: 'remote' | 'onsite' | 'hybrid';
   isDeleted?: boolean;
   appliedBy?: Types.ObjectId[];
-  //   appliedBy?: string[];
 };
