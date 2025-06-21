@@ -59,12 +59,10 @@ const courseSchema = new Schema<TCourse>(
     },
     code: {
       type: Number,
-      trim: true,
       required: true,
     },
     credits: {
       type: Number,
-      trim: true,
       required: true,
     },
     preRequisiteCourses: [preRequisiteCoursesSchema],

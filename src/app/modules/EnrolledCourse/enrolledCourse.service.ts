@@ -259,34 +259,34 @@ const getMyEnrolledCoursesFromDB = async (
 
 const updateEnrolledCourseMarksIntoDB = async (
   facultyId: string,
-  payload: Partial<TEnrolledCourse>,
+  payload: {
+    studentId: string;
+    courseId: string;
+    courseMarks?: {
+      classTest1?: number;
+      midTerm?: number;
+      classTest2?: number;
+      finalTerm?: number;
+    };
+    subjectMarks?: {
+      subjectName: string;
+      marks: {
+        classTest1?: number;
+        midTerm?: number;
+        classTest2?: number;
+        finalTerm?: number;
+      };
+    }[];
+    grade?: string;
+    isPassed?: boolean;
+    isMarkSubmitted?: boolean;
+  },
 ) => {
-  const {
-    semesterRegistration,
-    offeredCourse,
-    student,
-    courseMarks,
-    subjectMarks,
-  } = payload;
+  const { studentId, courseId, courseMarks, subjectMarks } = payload;
+  console.log({ subjectMarks });
+  const student = await Student.findOne({ id: studentId });
 
-  const isSemesterRegistrationExists =
-    await SemesterRegistration.findById(semesterRegistration);
-
-  if (!isSemesterRegistrationExists) {
-    throw new AppError(
-      httpStatus.NOT_FOUND,
-      'Semester registration not found !',
-    );
-  }
-
-  const isOfferedCourseExists = await OfferedCourse.findById(offeredCourse);
-
-  if (!isOfferedCourseExists) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Offered course not found !');
-  }
-  const isStudentExists = await Student.findById(student);
-
-  if (!isStudentExists) {
+  if (!student) {
     throw new AppError(httpStatus.NOT_FOUND, 'Student not found !');
   }
 
@@ -296,14 +296,41 @@ const updateEnrolledCourseMarksIntoDB = async (
     throw new AppError(httpStatus.NOT_FOUND, 'Faculty not found !');
   }
 
-  const isCourseBelongToFaculty = await EnrolledCourse.findOne({
-    semesterRegistration,
-    offeredCourse,
-    student,
+  const course = await Course.findById(courseId);
+
+  if (!course) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Course not found!');
+  }
+
+  // // There is only one ongoing semester.
+  // const semesterRegistration = await SemesterRegistration.findOne({
+  //   status: 'ONGOING',
+  // });
+
+  // if (!semesterRegistration) {
+  //   throw new AppError(
+  //     httpStatus.NOT_FOUND,
+  //     'Semester registration not found!',
+  //   );
+  // }
+
+  // const offeredCourse = await OfferedCourse.findOne({
+  //   semesterRegistration: semesterRegistration._id,
+  //   course: course._id,
+  // });
+
+  // if (!offeredCourse) {
+  //   throw new AppError(httpStatus.NOT_FOUND, 'Offered course not found!');
+  // }
+
+  const enrolledCourse = await EnrolledCourse.findOne({
+    // semesterRegistration: course.semesterRegistration,
+    // offeredCourse: course.offeredCourse,
+    student: student._id,
     faculty: faculty._id,
   });
 
-  if (!isCourseBelongToFaculty) {
+  if (!enrolledCourse) {
     throw new AppError(httpStatus.FORBIDDEN, 'You are forbidden!');
   }
 
@@ -311,7 +338,7 @@ const updateEnrolledCourseMarksIntoDB = async (
 
   if (subjectMarks && subjectMarks.length > 0) {
     modifiedData.subjectMarks = subjectMarks.map((subjectMark) => {
-      const existingSubject = isCourseBelongToFaculty.subjectMarks?.find(
+      const existingSubject = enrolledCourse.subjectMarks?.find(
         (s) => s.subjectName === subjectMark.subjectName,
       );
       return {
@@ -324,14 +351,27 @@ const updateEnrolledCourseMarksIntoDB = async (
     });
 
     const totalMarksForSubjects =
-      modifiedData.subjectMarks?.reduce((acc, subject) => {
-        const currentTotal =
-          (subject.marks.classTest1 || 0) +
-          (subject.marks.midTerm || 0) +
-          (subject.marks.classTest2 || 0) +
-          (subject.marks.finalTerm || 0);
-        return acc + currentTotal;
-      }, 0) || 0;
+      modifiedData.subjectMarks?.reduce(
+        (
+          acc: number,
+          subject: {
+            marks: {
+              classTest1?: number;
+              midTerm?: number;
+              classTest2?: number;
+              finalTerm?: number;
+            };
+          },
+        ) => {
+          const currentTotal =
+            (subject.marks.classTest1 || 0) +
+            (subject.marks.midTerm || 0) +
+            (subject.marks.classTest2 || 0) +
+            (subject.marks.finalTerm || 0);
+          return acc + currentTotal;
+        },
+        0,
+      ) || 0;
 
     const { grade, gradePoints } = calculateGradeAndPoints(
       totalMarksForSubjects,
@@ -340,7 +380,7 @@ const updateEnrolledCourseMarksIntoDB = async (
     modifiedData.gradePoints = gradePoints;
     modifiedData.isPassed = gradePoints > 0;
   } else if (courseMarks) {
-    const currentCourseMarks = isCourseBelongToFaculty.courseMarks;
+    const currentCourseMarks = enrolledCourse.courseMarks;
 
     modifiedData['courseMarks.classTest1'] =
       courseMarks.classTest1 ?? currentCourseMarks.classTest1;
@@ -364,13 +404,19 @@ const updateEnrolledCourseMarksIntoDB = async (
   }
 
   const result = await EnrolledCourse.findByIdAndUpdate(
-    isCourseBelongToFaculty._id,
-    modifiedData,
+    enrolledCourse._id,
+    {
+      ...modifiedData,
+      grade: payload.grade,
+      isPassed: payload.isPassed,
+      isMarkSubmitted: payload.isMarkSubmitted,
+      courseMarks: modifiedData.courseMarks,
+    },
     {
       new: true,
     },
   );
-
+  console.log(result);
   return result;
 };
 

@@ -21,11 +21,12 @@ const subjectMarksValidationSchema = z.object({
 
 const updateEnrolledCourseMarksValidationZodSchema = z.object({
   body: z.object({
-    semesterRegistration: z.string(),
-    offeredCourse: z.string(),
-    student: z.string(),
-    courseMarks: courseMarksValidationSchema.optional(),
+    studentId: z.string(),
+    courseId: z.string(),
     subjectMarks: z.array(subjectMarksValidationSchema).optional(),
+    grade: z.string().optional(),
+    isPassed: z.boolean().optional(),
+    isMarkSubmitted: z.boolean().optional(),
   }),
 });
 

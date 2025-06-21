@@ -15,14 +15,14 @@ const createCourseValidationSchema = z.object({
   body: z.object({
     title: z.string(),
     prefix: z.string(),
-    code: z.number(),
-    credits: z.number(),
+    code: z.coerce.number(),
+    credits: z.coerce.number(),
     preRequisiteCourses: z.array(PreRequisiteCourseValidationSchema).optional(),
     isDeleted: z.boolean().optional(),
     subjectType: z.enum(['Theory', 'Lab', 'Project']),
     note: z.string().optional(),
     availableSubjects: z.array(SubjectValidationSchema).optional(),
-    subjectsToSelect: z.number().optional(),
+    subjectsToSelect: z.coerce.number().optional(),
   }),
 });
 
@@ -41,8 +41,8 @@ const updateCourseValidationSchema = z.object({
   body: z.object({
     title: z.string().optional(),
     prefix: z.string().optional(),
-    code: z.number().optional(),
-    credits: z.number().optional(),
+    code: z.coerce.number().optional(),
+    credits: z.coerce.number().optional(),
     preRequisiteCourses: z
       .array(updatePreRequisiteCourseValidationSchema)
       .optional(),
@@ -50,7 +50,7 @@ const updateCourseValidationSchema = z.object({
     subjectType: z.enum(['Theory', 'Lab', 'Project']).optional(),
     note: z.string().optional(),
     availableSubjects: z.array(updateSubjectValidationSchema).optional(),
-    subjectsToSelect: z.number().optional(),
+    subjectsToSelect: z.coerce.number().optional(),
   }),
 });
 
