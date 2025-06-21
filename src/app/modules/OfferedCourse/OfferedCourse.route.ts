@@ -50,4 +50,26 @@ router.delete(
   OfferedCourseControllers.deleteOfferedCourseFromDB,
 );
 
+router.get(
+  '/by-semester/:academicSemesterId',
+  auth(
+    USER_ROLE.superAdmin,
+    USER_ROLE.admin,
+    USER_ROLE.faculty,
+    USER_ROLE.student,
+  ),
+  OfferedCourseControllers.getOfferedCoursesBySemester,
+);
+
+router.get(
+  '/by-year/:academicYearId',
+  auth(
+    USER_ROLE.superAdmin,
+    USER_ROLE.admin,
+    USER_ROLE.faculty,
+    USER_ROLE.student,
+  ),
+  OfferedCourseControllers.getOfferedCoursesByYear,
+);
+
 export const offeredCourseRoutes = router;

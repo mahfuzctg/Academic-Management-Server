@@ -25,6 +25,7 @@ app.use(
   }),
 );
 
+app.options('*', cors());
 // application routes
 app.use('/api/v1', router);
 

@@ -9,6 +9,11 @@ export type TEnrolledCourseMarks = {
   finalTerm: number;
 };
 
+export type TSubjectMarks = {
+  subjectName: string;
+  marks: TEnrolledCourseMarks;
+};
+
 export type TEnrolledCourse = {
   semesterRegistration: Types.ObjectId;
   academicSemester: Types.ObjectId;
@@ -20,7 +25,10 @@ export type TEnrolledCourse = {
   faculty: Types.ObjectId;
   isEnrolled: boolean;
   courseMarks: TEnrolledCourseMarks;
+  subjectMarks?: TSubjectMarks[];
   grade: TGrade;
   gradePoints: number;
-  isCompleted: boolean;
+  isPassed: boolean;
+  isMarkSubmitted?: boolean;
+  selectedSubjects?: string[];
 };

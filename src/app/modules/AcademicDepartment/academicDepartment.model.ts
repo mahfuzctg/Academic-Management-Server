@@ -14,6 +14,10 @@ const academicDepartmentSchema = new Schema<TAcademicDepartment>(
       type: Schema.Types.ObjectId,
       ref: 'AcademicFaculty',
     },
+    academicYear: {
+      type: Schema.Types.ObjectId,
+      ref: 'AcademicYear',
+    },
   },
   {
     timestamps: true,

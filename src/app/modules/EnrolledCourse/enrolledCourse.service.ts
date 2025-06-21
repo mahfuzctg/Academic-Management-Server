@@ -23,7 +23,7 @@ const createEnrolledCourseIntoDB = async (
    * Step4: Create an enrolled course
    */
 
-  const { offeredCourse } = payload;
+  const { offeredCourse, selectedSubjects } = payload;
 
   const isOfferedCourseExists = await OfferedCourse.findById(offeredCourse);
 
@@ -52,7 +52,53 @@ const createEnrolledCourseIntoDB = async (
 
   // check total credits exceeds maxCredit
   const course = await Course.findById(isOfferedCourseExists.course);
-  const currentCredit = course?.credits;
+
+  if (!course) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Course not found!');
+  }
+
+  let currentCredit = 0;
+
+  if (course.availableSubjects && course.availableSubjects.length > 0) {
+    if (!selectedSubjects || selectedSubjects.length === 0) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        'You must select subjects for this course.',
+      );
+    }
+
+    if (
+      course.subjectsToSelect &&
+      selectedSubjects.length !== course.subjectsToSelect
+    ) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        `You must select exactly ${course.subjectsToSelect} subjects.`,
+      );
+    }
+
+    const availableSubjectNames = course.availableSubjects.map((s) => s.name);
+    for (const subjectName of selectedSubjects) {
+      if (!availableSubjectNames.includes(subjectName)) {
+        throw new AppError(
+          httpStatus.BAD_REQUEST,
+          `Invalid subject selected: ${subjectName}`,
+        );
+      }
+    }
+
+    currentCredit = course.availableSubjects
+      .filter((s) => selectedSubjects.includes(s.name))
+      .reduce((acc, s) => acc + s.credits, 0);
+  } else {
+    if (selectedSubjects && selectedSubjects.length > 0) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        'This course does not have selectable subjects.',
+      );
+    }
+    currentCredit = course?.credits;
+  }
 
   const semesterRegistration = await SemesterRegistration.findById(
     isOfferedCourseExists.semesterRegistration,
@@ -120,6 +166,7 @@ const createEnrolledCourseIntoDB = async (
           student: student._id,
           faculty: isOfferedCourseExists.faculty,
           isEnrolled: true,
+          selectedSubjects,
         },
       ],
       { session },
@@ -212,28 +259,34 @@ const getMyEnrolledCoursesFromDB = async (
 
 const updateEnrolledCourseMarksIntoDB = async (
   facultyId: string,
-  payload: Partial<TEnrolledCourse>,
+  payload: {
+    studentId: string;
+    courseId: string;
+    courseMarks?: {
+      classTest1?: number;
+      midTerm?: number;
+      classTest2?: number;
+      finalTerm?: number;
+    };
+    subjectMarks?: {
+      subjectName: string;
+      marks: {
+        classTest1?: number;
+        midTerm?: number;
+        classTest2?: number;
+        finalTerm?: number;
+      };
+    }[];
+    grade?: string;
+    isPassed?: boolean;
+    isMarkSubmitted?: boolean;
+  },
 ) => {
-  const { semesterRegistration, offeredCourse, student, courseMarks } = payload;
+  const { studentId, courseId, courseMarks, subjectMarks } = payload;
+  console.log({ subjectMarks });
+  const student = await Student.findOne({ id: studentId });
 
-  const isSemesterRegistrationExists =
-    await SemesterRegistration.findById(semesterRegistration);
-
-  if (!isSemesterRegistrationExists) {
-    throw new AppError(
-      httpStatus.NOT_FOUND,
-      'Semester registration not found !',
-    );
-  }
-
-  const isOfferedCourseExists = await OfferedCourse.findById(offeredCourse);
-
-  if (!isOfferedCourseExists) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Offered course not found !');
-  }
-  const isStudentExists = await Student.findById(student);
-
-  if (!isStudentExists) {
+  if (!student) {
     throw new AppError(httpStatus.NOT_FOUND, 'Student not found !');
   }
 
@@ -243,52 +296,127 @@ const updateEnrolledCourseMarksIntoDB = async (
     throw new AppError(httpStatus.NOT_FOUND, 'Faculty not found !');
   }
 
-  const isCourseBelongToFaculty = await EnrolledCourse.findOne({
-    semesterRegistration,
-    offeredCourse,
-    student,
+  const course = await Course.findById(courseId);
+
+  if (!course) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Course not found!');
+  }
+
+  // // There is only one ongoing semester.
+  // const semesterRegistration = await SemesterRegistration.findOne({
+  //   status: 'ONGOING',
+  // });
+
+  // if (!semesterRegistration) {
+  //   throw new AppError(
+  //     httpStatus.NOT_FOUND,
+  //     'Semester registration not found!',
+  //   );
+  // }
+
+  // const offeredCourse = await OfferedCourse.findOne({
+  //   semesterRegistration: semesterRegistration._id,
+  //   course: course._id,
+  // });
+
+  // if (!offeredCourse) {
+  //   throw new AppError(httpStatus.NOT_FOUND, 'Offered course not found!');
+  // }
+
+  const enrolledCourse = await EnrolledCourse.findOne({
+    // semesterRegistration: course.semesterRegistration,
+    // offeredCourse: course.offeredCourse,
+    student: student._id,
     faculty: faculty._id,
   });
 
-  if (!isCourseBelongToFaculty) {
-    throw new AppError(httpStatus.FORBIDDEN, 'You are forbidden! !');
+  if (!enrolledCourse) {
+    throw new AppError(httpStatus.FORBIDDEN, 'You are forbidden!');
   }
 
-  const modifiedData: Record<string, unknown> = {
-    ...courseMarks,
-  };
+  const modifiedData: Record<string, any> = {};
 
-  if (courseMarks?.finalTerm) {
-    const { classTest1, classTest2, midTerm, finalTerm } =
-      isCourseBelongToFaculty.courseMarks;
+  if (subjectMarks && subjectMarks.length > 0) {
+    modifiedData.subjectMarks = subjectMarks.map((subjectMark) => {
+      const existingSubject = enrolledCourse.subjectMarks?.find(
+        (s) => s.subjectName === subjectMark.subjectName,
+      );
+      return {
+        subjectName: subjectMark.subjectName,
+        marks: {
+          ...existingSubject?.marks,
+          ...subjectMark.marks,
+        },
+      };
+    });
+
+    const totalMarksForSubjects =
+      modifiedData.subjectMarks?.reduce(
+        (
+          acc: number,
+          subject: {
+            marks: {
+              classTest1?: number;
+              midTerm?: number;
+              classTest2?: number;
+              finalTerm?: number;
+            };
+          },
+        ) => {
+          const currentTotal =
+            (subject.marks.classTest1 || 0) +
+            (subject.marks.midTerm || 0) +
+            (subject.marks.classTest2 || 0) +
+            (subject.marks.finalTerm || 0);
+          return acc + currentTotal;
+        },
+        0,
+      ) || 0;
+
+    const { grade, gradePoints } = calculateGradeAndPoints(
+      totalMarksForSubjects,
+    );
+    modifiedData.grade = grade;
+    modifiedData.gradePoints = gradePoints;
+    modifiedData.isPassed = gradePoints > 0;
+  } else if (courseMarks) {
+    const currentCourseMarks = enrolledCourse.courseMarks;
+
+    modifiedData['courseMarks.classTest1'] =
+      courseMarks.classTest1 ?? currentCourseMarks.classTest1;
+    modifiedData['courseMarks.midTerm'] =
+      courseMarks.midTerm ?? currentCourseMarks.midTerm;
+    modifiedData['courseMarks.classTest2'] =
+      courseMarks.classTest2 ?? currentCourseMarks.classTest2;
+    modifiedData['courseMarks.finalTerm'] =
+      courseMarks.finalTerm ?? currentCourseMarks.finalTerm;
 
     const totalMarks =
-      Math.ceil(classTest1) +
-      Math.ceil(midTerm) +
-      Math.ceil(classTest2) +
-      Math.ceil(finalTerm);
+      (modifiedData['courseMarks.classTest1'] || 0) +
+      (modifiedData['courseMarks.midTerm'] || 0) +
+      (modifiedData['courseMarks.classTest2'] || 0) +
+      (modifiedData['courseMarks.finalTerm'] || 0);
 
-    const result = calculateGradeAndPoints(totalMarks);
-
-    modifiedData.grade = result.grade;
-    modifiedData.gradePoints = result.gradePoints;
-    modifiedData.isCompleted = true;
-  }
-
-  if (courseMarks && Object.keys(courseMarks).length) {
-    for (const [key, value] of Object.entries(courseMarks)) {
-      modifiedData[`courseMarks.${key}`] = value;
-    }
+    const { grade, gradePoints } = calculateGradeAndPoints(totalMarks);
+    modifiedData.grade = grade;
+    modifiedData.gradePoints = gradePoints;
+    modifiedData.isPassed = gradePoints > 0;
   }
 
   const result = await EnrolledCourse.findByIdAndUpdate(
-    isCourseBelongToFaculty._id,
-    modifiedData,
+    enrolledCourse._id,
+    {
+      ...modifiedData,
+      grade: payload.grade,
+      isPassed: payload.isPassed,
+      isMarkSubmitted: payload.isMarkSubmitted,
+      courseMarks: modifiedData.courseMarks,
+    },
     {
       new: true,
     },
   );
-
+  console.log(result);
   return result;
 };
 

@@ -8,6 +8,10 @@ const academicFacultySchema = new Schema<TAcademicFaculty>(
       required: true,
       unique: true,
     },
+    academicYear: {
+      type: Schema.Types.ObjectId,
+      ref: 'AcademicYear',
+    },
   },
   {
     timestamps: true,

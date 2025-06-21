@@ -6,6 +6,7 @@ import { CourseRoutes } from '../modules/Course/course.route';
 import { AcademicDepartmentRoutes } from '../modules/AcademicDepartment/academicDepartment.route';
 import { AcademicFacultyRoutes } from '../modules/AcademicFaculty/academicFaculty.route';
 import { AcademicSemesterRoutes } from '../modules/AcademicSemester/academicSemester.route';
+import { AcademicYearRoutes } from '../modules/AcademicYear/academicYear.route';
 import { BlogRoutes } from '../modules/Blog/blog.route';
 import { EnrolledCourseRoutes } from '../modules/EnrolledCourse/enrolledCourse.route';
 import { FacultyRoutes } from '../modules/Faculty/faculty.route';
@@ -46,6 +47,10 @@ const moduleRoutes = [
   {
     path: '/academic-departments',
     route: AcademicDepartmentRoutes,
+  },
+  {
+    path: '/academic-years',
+    route: AcademicYearRoutes,
   },
   {
     path: '/courses',
