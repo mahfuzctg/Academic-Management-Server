@@ -78,7 +78,10 @@ const courseSchema = new Schema<TCourse>(
     note: {
       type: String,
     },
-    availableSubjects: {
+    defaultSubjects: {
+      type: [subjectSchema],
+    },
+    optionalSubjects: {
       type: [subjectSchema],
     },
     subjectsToSelect: {

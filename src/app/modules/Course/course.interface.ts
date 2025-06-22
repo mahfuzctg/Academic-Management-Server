@@ -20,7 +20,8 @@ export type TCourse = {
   preRequisiteCourses: TPreRequisiteCourses[];
   subjectType: 'Theory' | 'Lab' | 'Project';
   note?: string;
-  availableSubjects?: TSubject[];
+  defaultSubjects?: TSubject[];
+  optionalSubjects?: TSubject[];
   subjectsToSelect?: number;
 };
 

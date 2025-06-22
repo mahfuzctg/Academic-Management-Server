@@ -39,8 +39,12 @@ const getSingleCourseFromDB = async (id: string) => {
 };
 
 const updateCourseIntoDB = async (id: string, payload: Partial<TCourse>) => {
-  const { preRequisiteCourses, availableSubjects, ...courseRemainingData } =
-    payload;
+  const {
+    preRequisiteCourses,
+    defaultSubjects,
+    optionalSubjects,
+    ...courseRemainingData
+  } = payload;
 
   const session = await mongoose.startSession();
 
@@ -109,17 +113,18 @@ const updateCourseIntoDB = async (id: string, payload: Partial<TCourse>) => {
       }
     }
 
-    if (availableSubjects && availableSubjects.length > 0) {
+    // Handle defaultSubjects
+    if (defaultSubjects && defaultSubjects.length > 0) {
       // filter out the deleted fields
-      const deletedSubjects = availableSubjects
+      const deletedDefaultSubjects = defaultSubjects
         .filter((el) => el.name && el.isDeleted)
         .map((el) => el.name);
 
-      const deletedPreRequisiteCourses = await Course.findByIdAndUpdate(
+      const deletedDefaultSubjectsResult = await Course.findByIdAndUpdate(
         id,
         {
           $pull: {
-            availableSubjects: { name: { $in: deletedSubjects } },
+            defaultSubjects: { name: { $in: deletedDefaultSubjects } },
           },
         },
         {
@@ -129,19 +134,19 @@ const updateCourseIntoDB = async (id: string, payload: Partial<TCourse>) => {
         },
       );
 
-      if (!deletedPreRequisiteCourses) {
+      if (!deletedDefaultSubjectsResult) {
         throw new AppError(httpStatus.BAD_REQUEST, 'Failed to update course');
       }
 
-      // filter out the new course fields
-      const newSubjects = availableSubjects?.filter(
+      // filter out the new subject fields
+      const newDefaultSubjects = defaultSubjects?.filter(
         (el) => el.name && !el.isDeleted,
       );
 
-      const newPreRequisiteCourses = await Course.findByIdAndUpdate(
+      const newDefaultSubjectsResult = await Course.findByIdAndUpdate(
         id,
         {
-          $addToSet: { availableSubjects: { $each: newSubjects } },
+          $addToSet: { defaultSubjects: { $each: newDefaultSubjects } },
         },
         {
           new: true,
@@ -150,7 +155,54 @@ const updateCourseIntoDB = async (id: string, payload: Partial<TCourse>) => {
         },
       );
 
-      if (!newPreRequisiteCourses) {
+      if (!newDefaultSubjectsResult) {
+        throw new AppError(httpStatus.BAD_REQUEST, 'Failed to update course');
+      }
+    }
+
+    // Handle optionalSubjects
+    if (optionalSubjects && optionalSubjects.length > 0) {
+      // filter out the deleted fields
+      const deletedOptionalSubjects = optionalSubjects
+        .filter((el) => el.name && el.isDeleted)
+        .map((el) => el.name);
+
+      const deletedOptionalSubjectsResult = await Course.findByIdAndUpdate(
+        id,
+        {
+          $pull: {
+            optionalSubjects: { name: { $in: deletedOptionalSubjects } },
+          },
+        },
+        {
+          new: true,
+          runValidators: true,
+          session,
+        },
+      );
+
+      if (!deletedOptionalSubjectsResult) {
+        throw new AppError(httpStatus.BAD_REQUEST, 'Failed to update course');
+      }
+
+      // filter out the new subject fields
+      const newOptionalSubjects = optionalSubjects?.filter(
+        (el) => el.name && !el.isDeleted,
+      );
+
+      const newOptionalSubjectsResult = await Course.findByIdAndUpdate(
+        id,
+        {
+          $addToSet: { optionalSubjects: { $each: newOptionalSubjects } },
+        },
+        {
+          new: true,
+          runValidators: true,
+          session,
+        },
+      );
+
+      if (!newOptionalSubjectsResult) {
         throw new AppError(httpStatus.BAD_REQUEST, 'Failed to update course');
       }
     }
