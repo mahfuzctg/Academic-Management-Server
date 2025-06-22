@@ -59,7 +59,7 @@ const createEnrolledCourseIntoDB = async (
 
   let currentCredit = 0;
 
-  if (course.availableSubjects && course.availableSubjects.length > 0) {
+  if (course.optionalSubjects && course.optionalSubjects.length > 0) {
     if (!selectedSubjects || selectedSubjects.length === 0) {
       throw new AppError(
         httpStatus.BAD_REQUEST,
@@ -77,7 +77,7 @@ const createEnrolledCourseIntoDB = async (
       );
     }
 
-    const availableSubjectNames = course.availableSubjects.map((s) => s.name);
+    const availableSubjectNames = course.optionalSubjects.map((s) => s.name);
     for (const subjectName of selectedSubjects) {
       if (!availableSubjectNames.includes(subjectName)) {
         throw new AppError(
@@ -87,7 +87,7 @@ const createEnrolledCourseIntoDB = async (
       }
     }
 
-    currentCredit = course.availableSubjects
+    currentCredit = course.optionalSubjects
       .filter((s) => selectedSubjects.includes(s.name))
       .reduce((acc, s) => acc + s.credits, 0);
   } else {
