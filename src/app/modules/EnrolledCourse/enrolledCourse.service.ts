@@ -278,7 +278,7 @@ const updateEnrolledCourseMarksIntoDB = async (
       classTest2?: number;
       classTest3?: number;
       classTest4?: number;
-      finalTerm?: number;
+      finalExam?: number;
     };
     subjectMarks?: {
       subjectName: string;
@@ -405,15 +405,15 @@ const updateEnrolledCourseMarksIntoDB = async (
       courseMarks.classTest3 ?? currentCourseMarks.classTest3;
     modifiedData['courseMarks.classTest4'] =
       courseMarks.classTest4 ?? currentCourseMarks.classTest4;
-    modifiedData['courseMarks.finalTerm'] =
-      courseMarks.finalTerm ?? currentCourseMarks.finalTerm;
+    modifiedData['courseMarks.finalExam'] =
+      courseMarks.finalExam ?? currentCourseMarks.finalExam;
 
     const totalMarks =
       (modifiedData['courseMarks.classTest1'] || 0) +
       (modifiedData['courseMarks.classTest2'] || 0) +
       (modifiedData['courseMarks.classTest3'] || 0) +
       (modifiedData['courseMarks.classTest4'] || 0) +
-      (modifiedData['courseMarks.finalTerm'] || 0);
+      (modifiedData['courseMarks.finalExam'] || 0);
 
     const { grade, gradePoints } = calculateGradeAndPoints(totalMarks);
     modifiedData.grade = grade;
@@ -434,7 +434,7 @@ const updateEnrolledCourseMarksIntoDB = async (
       new: true,
     },
   );
-  console.log(result);
+
   return result;
 };
 
