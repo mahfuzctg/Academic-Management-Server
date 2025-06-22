@@ -23,7 +23,8 @@ const createEnrolledCourseIntoDB = async (
    * Step4: Create an enrolled course
    */
 
-  const { offeredCourse, selectedSubjects } = payload;
+  let { selectedSubjects } = payload;
+  const { offeredCourse } = payload;
 
   const isOfferedCourseExists = await OfferedCourse.findById(offeredCourse);
 
@@ -88,7 +89,7 @@ const createEnrolledCourseIntoDB = async (
     }
 
     currentCredit = course.optionalSubjects
-      .filter((s) => selectedSubjects.includes(s.name))
+      .filter((s) => selectedSubjects?.includes(s.name))
       .reduce((acc, s) => acc + s.credits, 0);
   } else {
     if (selectedSubjects && selectedSubjects.length > 0) {
@@ -98,6 +99,16 @@ const createEnrolledCourseIntoDB = async (
       );
     }
     currentCredit = course?.credits;
+  }
+
+  // Add default subjects to selectedSubjects if they exist
+  if (course.defaultSubjects && course.defaultSubjects.length > 0) {
+    const defaultSubjectNames = course.defaultSubjects.map((s) => s.name);
+    const currentSelectedSubjects = selectedSubjects || [];
+    const updatedSelectedSubjects = [
+      ...new Set([...currentSelectedSubjects, ...defaultSubjectNames]),
+    ];
+    selectedSubjects = updatedSelectedSubjects;
   }
 
   const semesterRegistration = await SemesterRegistration.findById(
