@@ -23,7 +23,8 @@ const createEnrolledCourseIntoDB = async (
    * Step4: Create an enrolled course
    */
 
-  const { offeredCourse, selectedSubjects } = payload;
+  let { selectedSubjects } = payload;
+  const { offeredCourse } = payload;
 
   const isOfferedCourseExists = await OfferedCourse.findById(offeredCourse);
 
@@ -88,7 +89,7 @@ const createEnrolledCourseIntoDB = async (
     }
 
     currentCredit = course.optionalSubjects
-      .filter((s) => selectedSubjects.includes(s.name))
+      .filter((s) => selectedSubjects?.includes(s.name))
       .reduce((acc, s) => acc + s.credits, 0);
   } else {
     if (selectedSubjects && selectedSubjects.length > 0) {
@@ -98,6 +99,16 @@ const createEnrolledCourseIntoDB = async (
       );
     }
     currentCredit = course?.credits;
+  }
+
+  // Add default subjects to selectedSubjects if they exist
+  if (course.defaultSubjects && course.defaultSubjects.length > 0) {
+    const defaultSubjectNames = course.defaultSubjects.map((s) => s.name);
+    const currentSelectedSubjects = selectedSubjects || [];
+    const updatedSelectedSubjects = [
+      ...new Set([...currentSelectedSubjects, ...defaultSubjectNames]),
+    ];
+    selectedSubjects = updatedSelectedSubjects;
   }
 
   const semesterRegistration = await SemesterRegistration.findById(
@@ -267,7 +278,7 @@ const updateEnrolledCourseMarksIntoDB = async (
       classTest2?: number;
       classTest3?: number;
       classTest4?: number;
-      finalTerm?: number;
+      finalExam?: number;
     };
     subjectMarks?: {
       subjectName: string;
@@ -394,15 +405,15 @@ const updateEnrolledCourseMarksIntoDB = async (
       courseMarks.classTest3 ?? currentCourseMarks.classTest3;
     modifiedData['courseMarks.classTest4'] =
       courseMarks.classTest4 ?? currentCourseMarks.classTest4;
-    modifiedData['courseMarks.finalTerm'] =
-      courseMarks.finalTerm ?? currentCourseMarks.finalTerm;
+    modifiedData['courseMarks.finalExam'] =
+      courseMarks.finalExam ?? currentCourseMarks.finalExam;
 
     const totalMarks =
       (modifiedData['courseMarks.classTest1'] || 0) +
       (modifiedData['courseMarks.classTest2'] || 0) +
       (modifiedData['courseMarks.classTest3'] || 0) +
       (modifiedData['courseMarks.classTest4'] || 0) +
-      (modifiedData['courseMarks.finalTerm'] || 0);
+      (modifiedData['courseMarks.finalExam'] || 0);
 
     const { grade, gradePoints } = calculateGradeAndPoints(totalMarks);
     modifiedData.grade = grade;
@@ -423,7 +434,7 @@ const updateEnrolledCourseMarksIntoDB = async (
       new: true,
     },
   );
-  console.log(result);
+
   return result;
 };
 

@@ -1,7 +1,3 @@
-/* eslint-disable no-undef */
-/* eslint-disable no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Application, Request, Response } from 'express';
@@ -11,31 +7,34 @@ import router from './app/routes';
 
 const app: Application = express();
 
-//parsers
-app.use(express.json());
-app.use(cookieParser());
-
+// CORS setup - must come before routes
 app.use(
   cors({
-    origin: [
-      'http://localhost:5173',
-      'https://academic-management-client-ten.vercel.app',
-    ],
+    origin: 'https://academic-management-client-ten.vercel.app',
+
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   }),
 );
 
+// Preflight support
 app.options('*', cors());
-// application routes
+
+// Body parsers
+app.use(express.json());
+app.use(cookieParser());
+
+// Main routes
 app.use('/api/v1', router);
 
+// Default route
 app.get('/', (req: Request, res: Response) => {
   res.send('Welcome to Academic Managements!');
 });
 
+// Error handling
 app.use(globalErrorHandler);
-
-//Not Found
 app.use(notFound);
 
 export default app;

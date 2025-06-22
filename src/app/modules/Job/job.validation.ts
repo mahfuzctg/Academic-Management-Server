@@ -7,7 +7,7 @@ const createJobZodSchema = z.object({
     description: z.string(),
     bannerImage: z.string().optional(),
     profileImage: z.string().optional(),
-    author: z.string(), // ObjectId as string
+    author: z.string().optional(),
     minPrice: z.number(),
     maxPrice: z.number(),
     deadline: z.string(),

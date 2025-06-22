@@ -32,7 +32,7 @@ const courseMarksSchema = new Schema<TEnrolledCourseMarks>(
       max: 10,
       default: 0,
     },
-    finalTerm: {
+    finalExam: {
       type: Number,
       min: 0,
       max: 50,
