@@ -17,49 +17,50 @@ const createEnrolledCourseIntoDB = async (
   payload: TEnrolledCourse,
 ) => {
   /**
-   * Step1: Check if the offered cousres is exists
+   * Step1: Check if the offered course exists
    * Step2: Check if the student is already enrolled
-   * Step3: Check if the max credits exceed
+   * Step3: Check if the max credits are exceeded
    * Step4: Create an enrolled course
    */
 
   let { selectedSubjects } = payload;
   const { offeredCourse } = payload;
 
+  // Step 1: Validate offered course
   const isOfferedCourseExists = await OfferedCourse.findById(offeredCourse);
-
   if (!isOfferedCourseExists) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Offered course not found !');
+    throw new AppError(httpStatus.NOT_FOUND, 'Offered course not found!');
   }
 
   if (isOfferedCourseExists.maxCapacity <= 0) {
-    throw new AppError(httpStatus.BAD_GATEWAY, 'Room is full !');
+    throw new AppError(httpStatus.BAD_GATEWAY, 'Room is full!');
   }
 
+  // Step 2: Validate student and check enrollment
   const student = await Student.findOne({ id: userId }, { _id: 1 });
-
   if (!student) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Student not found !');
+    throw new AppError(httpStatus.NOT_FOUND, 'Student not found!');
   }
+
   const isStudentAlreadyEnrolled = await EnrolledCourse.findOne({
-    semesterRegistration: isOfferedCourseExists?.semesterRegistration,
+    semesterRegistration: isOfferedCourseExists.semesterRegistration,
     offeredCourse,
     student: student._id,
   });
 
   if (isStudentAlreadyEnrolled) {
-    throw new AppError(httpStatus.CONFLICT, 'Student is already enrolled !');
+    throw new AppError(httpStatus.CONFLICT, 'Student is already enrolled!');
   }
 
-  // check total credits exceeds maxCredit
+  // Step 3: Check subject selection and credits
   const course = await Course.findById(isOfferedCourseExists.course);
-
   if (!course) {
     throw new AppError(httpStatus.NOT_FOUND, 'Course not found!');
   }
 
   let currentCredit = 0;
 
+  // Handle optional subjects
   if (course.optionalSubjects && course.optionalSubjects.length > 0) {
     if (!selectedSubjects || selectedSubjects.length === 0) {
       throw new AppError(
@@ -79,6 +80,7 @@ const createEnrolledCourseIntoDB = async (
     }
 
     const availableSubjectNames = course.optionalSubjects.map((s) => s.name);
+
     for (const subjectName of selectedSubjects) {
       if (!availableSubjectNames.includes(subjectName)) {
         throw new AppError(
@@ -98,10 +100,11 @@ const createEnrolledCourseIntoDB = async (
         'This course does not have selectable subjects.',
       );
     }
-    currentCredit = course?.credits;
+
+    currentCredit = course.credits;
   }
 
-  // Add default subjects to selectedSubjects if they exist
+  // Step 4: Add default subjects to selectedSubjects
   if (course.defaultSubjects && course.defaultSubjects.length > 0) {
     const defaultSubjectNames = course.defaultSubjects.map((s) => s.name);
     const currentSelectedSubjects = selectedSubjects || [];
@@ -111,11 +114,12 @@ const createEnrolledCourseIntoDB = async (
     selectedSubjects = updatedSelectedSubjects;
   }
 
+  // Step 5: Check total enrolled credits
   const semesterRegistration = await SemesterRegistration.findById(
     isOfferedCourseExists.semesterRegistration,
   ).select('maxCredit');
 
-  const maxCredit = semesterRegistration?.maxCredit;
+  const maxCredit = semesterRegistration?.maxCredit ?? 0;
 
   const enrolledCourses = await EnrolledCourse.aggregate([
     {
@@ -132,34 +136,27 @@ const createEnrolledCourseIntoDB = async (
         as: 'enrolledCourseData',
       },
     },
-    {
-      $unwind: '$enrolledCourseData',
-    },
+    { $unwind: '$enrolledCourseData' },
     {
       $group: {
         _id: null,
         totalEnrolledCredits: { $sum: '$enrolledCourseData.credits' },
       },
     },
-    {
-      $project: {
-        _id: 0,
-        totalEnrolledCredits: 1,
-      },
-    },
+    { $project: { _id: 0, totalEnrolledCredits: 1 } },
   ]);
 
-  //  total enrolled credits + new enrolled course credit > maxCredit
   const totalCredits =
     enrolledCourses.length > 0 ? enrolledCourses[0].totalEnrolledCredits : 0;
 
-  if (totalCredits && maxCredit && totalCredits + currentCredit > maxCredit) {
+  if (totalCredits + currentCredit > maxCredit) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
-      'You have exceeded maximum number of credits !',
+      'You have exceeded the maximum number of credits!',
     );
   }
 
+  // Step 6: Enroll the student
   const session = await mongoose.startSession();
 
   try {
@@ -177,7 +174,7 @@ const createEnrolledCourseIntoDB = async (
           student: student._id,
           faculty: isOfferedCourseExists.faculty,
           isEnrolled: true,
-          selectedSubjects,
+          selectedSubjects, // array of subject names
         },
       ],
       { session },
@@ -186,13 +183,12 @@ const createEnrolledCourseIntoDB = async (
     if (!result) {
       throw new AppError(
         httpStatus.BAD_REQUEST,
-        'Failed to enroll in this cousre !',
+        'Failed to enroll in this course!',
       );
     }
 
-    const maxCapacity = isOfferedCourseExists.maxCapacity;
     await OfferedCourse.findByIdAndUpdate(offeredCourse, {
-      maxCapacity: maxCapacity - 1,
+      maxCapacity: isOfferedCourseExists.maxCapacity - 1,
     });
 
     await session.commitTransaction();
