@@ -14,13 +14,19 @@ const courseMarksSchema = new Schema<TEnrolledCourseMarks>(
       max: 10,
       default: 0,
     },
-    midTerm: {
+    classTest2: {
       type: Number,
       min: 0,
       max: 30,
       default: 0,
     },
-    classTest2: {
+    classTest3: {
+      type: Number,
+      min: 0,
+      max: 10,
+      default: 0,
+    },
+    classTest4: {
       type: Number,
       min: 0,
       max: 10,
