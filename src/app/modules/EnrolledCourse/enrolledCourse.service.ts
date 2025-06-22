@@ -264,16 +264,18 @@ const updateEnrolledCourseMarksIntoDB = async (
     courseId: string;
     courseMarks?: {
       classTest1?: number;
-      midTerm?: number;
       classTest2?: number;
+      classTest3?: number;
+      classTest4?: number;
       finalTerm?: number;
     };
     subjectMarks?: {
       subjectName: string;
       marks: {
         classTest1?: number;
-        midTerm?: number;
         classTest2?: number;
+        classTest3?: number;
+        classTest4?: number;
         finalTerm?: number;
       };
     }[];
@@ -357,16 +359,18 @@ const updateEnrolledCourseMarksIntoDB = async (
           subject: {
             marks: {
               classTest1?: number;
-              midTerm?: number;
               classTest2?: number;
+              classTest3?: number;
+              classTest4?: number;
               finalTerm?: number;
             };
           },
         ) => {
           const currentTotal =
             (subject.marks.classTest1 || 0) +
-            (subject.marks.midTerm || 0) +
             (subject.marks.classTest2 || 0) +
+            (subject.marks.classTest3 || 0) +
+            (subject.marks.classTest4 || 0) +
             (subject.marks.finalTerm || 0);
           return acc + currentTotal;
         },
@@ -384,17 +388,20 @@ const updateEnrolledCourseMarksIntoDB = async (
 
     modifiedData['courseMarks.classTest1'] =
       courseMarks.classTest1 ?? currentCourseMarks.classTest1;
-    modifiedData['courseMarks.midTerm'] =
-      courseMarks.midTerm ?? currentCourseMarks.midTerm;
     modifiedData['courseMarks.classTest2'] =
       courseMarks.classTest2 ?? currentCourseMarks.classTest2;
+    modifiedData['courseMarks.classTest3'] =
+      courseMarks.classTest3 ?? currentCourseMarks.classTest3;
+    modifiedData['courseMarks.classTest4'] =
+      courseMarks.classTest4 ?? currentCourseMarks.classTest4;
     modifiedData['courseMarks.finalTerm'] =
       courseMarks.finalTerm ?? currentCourseMarks.finalTerm;
 
     const totalMarks =
       (modifiedData['courseMarks.classTest1'] || 0) +
-      (modifiedData['courseMarks.midTerm'] || 0) +
       (modifiedData['courseMarks.classTest2'] || 0) +
+      (modifiedData['courseMarks.classTest3'] || 0) +
+      (modifiedData['courseMarks.classTest4'] || 0) +
       (modifiedData['courseMarks.finalTerm'] || 0);
 
     const { grade, gradePoints } = calculateGradeAndPoints(totalMarks);
