@@ -104,7 +104,7 @@ const createEnrolledCourseIntoDB = async (
     currentCredit = course.credits;
   }
 
-  // Step 4: Add default subjects to selectedSubjects
+  // Add default subjects to selectedSubjects if they exist
   if (course.defaultSubjects && course.defaultSubjects.length > 0) {
     const defaultSubjectNames = course.defaultSubjects.map((s) => s.name);
     const currentSelectedSubjects = selectedSubjects || [];
@@ -114,7 +114,6 @@ const createEnrolledCourseIntoDB = async (
     selectedSubjects = updatedSelectedSubjects;
   }
 
-  // Step 5: Check total enrolled credits
   const semesterRegistration = await SemesterRegistration.findById(
     isOfferedCourseExists.semesterRegistration,
   ).select('maxCredit');

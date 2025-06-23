@@ -34,6 +34,7 @@ export type TAcademicSemesterCode =
   | '08';
 
 export type TAcademicSemester = {
+  year: any;
   name: TAcademicSemesterName;
   code: TAcademicSemesterCode;
 

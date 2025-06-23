@@ -7,9 +7,10 @@ import { TAcademicSemester } from './academicSemester.interface';
 import { AcademicSemester } from './academicSemester.model';
 
 const createAcademicSemesterIntoDB = async (payload: TAcademicSemester) => {
-  if (academicSemesterNameCodeMapper[payload.name] !== payload.code) {
-    throw new Error('Invalid Semester Code');
-  }
+  // if (academicSemesterNameCodeMapper[payload.name] == payload.code) {
+  //   console.log(payload);
+  //   throw new Error('Invalid Semester Code');
+  // }
 
   const result = await AcademicSemester.create(payload);
   return result;
@@ -18,7 +19,10 @@ const createAcademicSemesterIntoDB = async (payload: TAcademicSemester) => {
 const getAllAcademicSemestersFromDB = async (
   query: Record<string, unknown>,
 ) => {
-  const academicSemesterQuery = new QueryBuilder(AcademicSemester.find(), query)
+  const academicSemesterQuery = new QueryBuilder(
+    AcademicSemester.find().populate('academicYear'),
+    query,
+  )
     .search(AcademicSemesterSearchableFields)
     .filter()
     .sort()

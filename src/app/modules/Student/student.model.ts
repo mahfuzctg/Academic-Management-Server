@@ -155,12 +155,22 @@ const studentSchema = new Schema<TStudent, StudentModel>(
     toJSON: {
       virtuals: true,
     },
+    toObject: {
+      virtuals: true,
+    },
   },
 );
 
-//virtual
+//  Virtual for full name
 studentSchema.virtual('fullName').get(function () {
   return this?.name?.firstName + this?.name?.middleName + this?.name?.lastName;
+});
+
+//  Virtual for MarkDistribution
+studentSchema.virtual('marks', {
+  ref: 'MarkDistribution',
+  localField: '_id',
+  foreignField: 'student',
 });
 
 // Query Middleware
@@ -179,7 +189,7 @@ studentSchema.pre('aggregate', function (next) {
   next();
 });
 
-//creating a custom static method
+//Custom static method
 studentSchema.statics.isUserExists = async function (id: string) {
   const existingUser = await Student.findOne({ id });
   return existingUser;

@@ -2,8 +2,8 @@ import express from 'express';
 import auth from '../../middlewares/auth';
 import validateRequest from '../../middlewares/validateRequest';
 import { USER_ROLE } from '../User/user.constant';
-import { BlogControllers } from './blog.controller';
-import { BlogValidations } from './blog.validation';
+import { JobControllers } from './job.controller';
+import { JobValidations } from './job.validation';
 
 const router = express.Router();
 
@@ -15,13 +15,13 @@ router.post(
     USER_ROLE.student,
     USER_ROLE.faculty,
   ),
-  validateRequest(BlogValidations.createBlogZodSchema),
-  BlogControllers.createBlog,
+  validateRequest(JobValidations.createJobZodSchema),
+  JobControllers.createJob,
 );
 
-router.get('/', BlogControllers.getAllBlogs);
+router.get('/', JobControllers.getAllJobs);
 
-router.get('/:id', BlogControllers.getSingleBlog);
+router.get('/:id', JobControllers.getSingleJob);
 
 router.patch(
   '/:id',
@@ -31,8 +31,8 @@ router.patch(
     USER_ROLE.student,
     USER_ROLE.faculty,
   ),
-  validateRequest(BlogValidations.updateBlogZodSchema),
-  BlogControllers.updateBlog,
+  validateRequest(JobValidations.updateJobZodSchema),
+  JobControllers.updateJob,
 );
 
 router.delete(
@@ -43,17 +43,18 @@ router.delete(
     USER_ROLE.student,
     USER_ROLE.faculty,
   ),
-  BlogControllers.deleteBlog,
+  JobControllers.deleteJob,
 );
+
 router.patch(
-  '/:id/vote',
+  '/:id/apply',
   auth(
     USER_ROLE.superAdmin,
     USER_ROLE.admin,
     USER_ROLE.student,
     USER_ROLE.faculty,
   ),
-  BlogControllers.voteBlog,
+  JobControllers.applyJob,
 );
 
-export const BlogRoutes = router;
+export const JobRoutes = router;

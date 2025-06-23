@@ -55,6 +55,19 @@ const deleteBlog = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const voteBlog = catchAsync(async (req, res) => {
+  const { id } = req.params; // blog id
+  const userId = req.user._id; // user id from auth middleware
+
+  const result = await BlogServices.voteBlog(id, userId);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Voted successfully',
+    data: result,
+  });
+});
 
 export const BlogControllers = {
   createBlog,
@@ -62,4 +75,5 @@ export const BlogControllers = {
   getSingleBlog,
   updateBlog,
   deleteBlog,
+  voteBlog,
 };
