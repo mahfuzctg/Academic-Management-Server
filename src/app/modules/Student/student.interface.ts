@@ -1,8 +1,5 @@
 import { Model, Types } from 'mongoose';
-import {
-  TAcademicSemesterCode,
-  TAcademicSemesterName,
-} from '../AcademicSemester/academicSemester.interface';
+import { TAcademicSemesterName } from '../AcademicSemester/academicSemester.interface';
 
 export type TUserName = {
   firstName: string;
@@ -41,10 +38,7 @@ export type TStudent = {
   guardian: TGuardian;
   localGuardian: TLocalGuardian;
   profileImg?: string;
-  currentSemester: {
-    name: TAcademicSemesterName;
-    code: TAcademicSemesterCode;
-  };
+  currentSemester: TAcademicSemesterName;
   admissionSemester: Types.ObjectId;
   academicDepartment: Types.ObjectId;
   academicFaculty: Types.ObjectId;
