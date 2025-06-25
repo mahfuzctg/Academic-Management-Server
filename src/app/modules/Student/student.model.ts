@@ -99,6 +99,33 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       },
       required: [true, 'Gender is required'],
     },
+    currentSemester: {
+      name: {
+        type: String,
+        required: [true, 'Current semester name is required'],
+        enum: {
+          values: [
+            '1st Semester',
+            '2nd Semester',
+            '3rd Semester',
+            '4th Semester',
+            '5th Semester',
+            '6th Semester',
+            '7th Semester',
+            '8th Semester',
+          ],
+          message: '{VALUE} is not a valid semester name',
+        },
+      },
+      code: {
+        type: String,
+        required: [true, 'Current semester code is required'],
+        enum: {
+          values: ['01', '02', '03', '04', '05', '06', '07', '08'],
+          message: '{VALUE} is not a valid semester code',
+        },
+      },
+    },
     dateOfBirth: { type: Date },
     email: {
       type: String,

@@ -93,6 +93,7 @@ const updateStudentIntoDB = async (id: string, payload: Partial<TStudent>) => {
     }
 
     await session.commitTransaction();
+    console.log('updatedStudent', updatedStudent);
     return updatedStudent;
   } catch (error) {
     await session.abortTransaction();
