@@ -102,7 +102,7 @@ const studentSchema = new Schema<TStudent, StudentModel>(
     currentSemester: {
       type: String,
       required: [true, 'Current semester is required'],
-      default: '1st Semester',
+      default: '01',
     },
     dateOfBirth: { type: Date },
     email: {

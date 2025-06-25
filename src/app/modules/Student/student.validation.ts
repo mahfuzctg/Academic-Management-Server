@@ -37,17 +37,7 @@ export const createStudentValidationSchema = z.object({
       dateOfBirth: z.string().optional(),
       email: z.string().email(),
       contactNo: z.string(),
-      currentSemester: z.enum([
-        '1st Semester',
-        '2nd Semester',
-        '3rd Semester',
-        '4th Semester',
-        '5th Semester',
-        '6th Semester',
-        '7th Semester',
-        '8th Semester',
-      ]),
-
+      currentSemester: z.enum(['01', '02', '03', '04', '05', '06', '07', '08']),
       emergencyContactNo: z.string(),
       bloodGroup: z.enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']),
       presentAddress: z.string(),
