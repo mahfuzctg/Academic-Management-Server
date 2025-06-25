@@ -23,17 +23,10 @@ export type TAcademicSemesterName =
   | '6th Semester'
   | '7th Semester'
   | '8th Semester';
-export type TAcademicSemesterCode =
-  | '01'
-  | '02'
-  | '03'
-  | '04'
-  | '05'
-  | '06'
-  | '07'
-  | '08';
+export type TAcademicSemesterCode = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
 export type TAcademicSemester = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   year: any;
   name: TAcademicSemesterName;
   code: TAcademicSemesterCode;
