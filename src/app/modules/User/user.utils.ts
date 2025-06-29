@@ -23,9 +23,12 @@ export const generateStudentId = async (payload: TAcademicSemester) => {
   let currentId = (0).toString();
   const lastStudentId = await findLastStudentId();
 
-  const lastStudentSemesterCode = lastStudentId?.substring(4, 6);
+  const lastStudentSemesterCode = lastStudentId?.substring(
+    4,
+    6,
+  ) as unknown as TAcademicSemester['code'];
 
-  const currentSemesterCode = payload.code;
+  const currentSemesterCode: TAcademicSemester['code'] = payload.code;
 
   if (lastStudentId && lastStudentSemesterCode === currentSemesterCode) {
     currentId = lastStudentId.substring(6);
@@ -33,7 +36,7 @@ export const generateStudentId = async (payload: TAcademicSemester) => {
 
   let incrementId = (Number(currentId) + 1).toString().padStart(4, '0');
 
-  incrementId = `${payload.code}${incrementId}`;
+  incrementId = `${currentSemesterCode}${incrementId}`;
 
   return incrementId;
 };
