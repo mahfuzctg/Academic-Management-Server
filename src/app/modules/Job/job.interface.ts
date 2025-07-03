@@ -6,7 +6,7 @@ export type TJob = {
   description: string;
   bannerImage?: string;
   profileImage?: string;
-  author: Types.ObjectId;
+  author?: Types.ObjectId;
   minPrice: number;
   maxPrice: number;
   deadline: string;

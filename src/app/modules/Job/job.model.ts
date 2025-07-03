@@ -8,7 +8,7 @@ const jobSchema = new Schema<TJob>(
     description: { type: String, required: true },
     bannerImage: { type: String },
     profileImage: { type: String },
-    author: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    author: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     minPrice: { type: Number, required: true },
     maxPrice: { type: Number, required: true },
     deadline: { type: String, required: true },
