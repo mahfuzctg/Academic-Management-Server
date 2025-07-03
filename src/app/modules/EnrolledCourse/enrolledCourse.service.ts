@@ -32,6 +32,8 @@ const createEnrolledCourseIntoDB = async (
     throw new AppError(httpStatus.NOT_FOUND, 'Offered course not found!');
   }
 
+  console.log('isOfferedCourseExists', isOfferedCourseExists);
+
   if (isOfferedCourseExists.maxCapacity <= 0) {
     throw new AppError(httpStatus.BAD_GATEWAY, 'Room is full!');
   }
@@ -173,6 +175,7 @@ const createEnrolledCourseIntoDB = async (
           student: student._id,
           faculty: isOfferedCourseExists.faculty,
           isEnrolled: true,
+          isExamDone: false,
           selectedSubjects, // array of subject names
         },
       ],
@@ -206,7 +209,7 @@ const getAllEnrolledCoursesFromDB = async (
   query: Record<string, unknown>,
 ) => {
   const faculty = await Faculty.findOne({ id: facultyId });
-
+  console.log('faculty', faculty);
   if (!faculty) {
     throw new AppError(httpStatus.NOT_FOUND, 'Faculty not found !');
   }
@@ -225,6 +228,7 @@ const getAllEnrolledCoursesFromDB = async (
     .fields();
 
   const result = await enrolledCourseQuery.modelQuery;
+  console.log('result this', result);
   const meta = await enrolledCourseQuery.countTotal();
 
   return {
@@ -422,6 +426,7 @@ const updateEnrolledCourseMarksIntoDB = async (
       ...modifiedData,
       grade: payload.grade,
       isPassed: payload.isPassed,
+      isExamDone: true,
       isMarkSubmitted: payload.isMarkSubmitted,
       courseMarks: modifiedData.courseMarks,
     },
