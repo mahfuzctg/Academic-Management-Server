@@ -128,6 +128,14 @@ const enrolledCourseSchema = new Schema<TEnrolledCourse>({
     type: Boolean,
     default: false,
   },
+  isExamDone: {
+    type: Boolean,
+    default: false,
+  },
+  isNextSemesterRegistrationDone: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const EnrolledCourse = mongoose.model<TEnrolledCourse>(

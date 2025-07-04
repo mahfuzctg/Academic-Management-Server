@@ -176,6 +176,7 @@ const createEnrolledCourseIntoDB = async (
           faculty: isOfferedCourseExists.faculty,
           isEnrolled: true,
           isExamDone: false,
+          isNextSemesterRegistrationDone: false,
           selectedSubjects, // array of subject names
         },
       ],

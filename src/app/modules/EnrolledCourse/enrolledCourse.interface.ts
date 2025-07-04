@@ -31,5 +31,7 @@ export type TEnrolledCourse = {
   gradePoints: number;
   isPassed: boolean;
   isMarkSubmitted?: boolean;
+  isExamDone?: boolean;
+  isNextSemesterRegistrationDone?: boolean;
   selectedSubjects?: string[];
 };
