@@ -20,12 +20,12 @@ const createEnrolledCourse = catchAsync(async (req, res) => {
 
 const getAllEnrolledCourses = catchAsync(async (req, res) => {
   const facultyId = req.user.userId;
-
+  console.log('facultyId', facultyId);
   const result = await EnrolledCourseServices.getAllEnrolledCoursesFromDB(
     facultyId,
     req.query,
   );
-
+  console.log('result1', result);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
