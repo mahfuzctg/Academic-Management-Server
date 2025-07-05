@@ -197,6 +197,8 @@ const createEnrolledCourseIntoDB = async (
     await session.commitTransaction();
     await session.endSession();
 
+    console.log('this is my result', result);
+
     return result;
   } catch (err: any) {
     await session.abortTransaction();
@@ -421,6 +423,8 @@ const updateEnrolledCourseMarksIntoDB = async (
     modifiedData.isPassed = gradePoints > 0;
   }
 
+  console.log('modifiedData is last ', modifiedData);
+
   const result = await EnrolledCourse.findByIdAndUpdate(
     enrolledCourse._id,
     {
@@ -435,6 +439,8 @@ const updateEnrolledCourseMarksIntoDB = async (
       new: true,
     },
   );
+
+  console.log('this is the content', result);
 
   return result;
 };
