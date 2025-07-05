@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Grade } from './enrolledCourse.constant';
 
 const createEnrolledCourseValidationZodSchema = z.object({
   body: z.object({
@@ -8,11 +9,11 @@ const createEnrolledCourseValidationZodSchema = z.object({
 });
 
 const courseMarksValidationSchema = z.object({
-  classTest1: z.number().min(0).max(20).optional(),
-  classTest2: z.number().min(0).max(20).optional(),
-  classTest3: z.number().min(0).max(20).optional(),
-  classTest4: z.number().min(0).max(20).optional(),
-  finalExam: z.number().min(0).max(210).optional(),
+  classTest1: z.number().optional(),
+  classTest2: z.number().optional(),
+  classTest3: z.number().optional(),
+  classTest4: z.number().optional(),
+  finalExam: z.number().optional(),
 });
 
 const subjectMarksValidationSchema = z.object({
@@ -32,7 +33,7 @@ const updateEnrolledCourseMarksValidationZodSchema = z.object({
     courseId: z.string(),
     courseMarks: courseMarksValidationSchema.optional(),
     subjectMarks: z.array(subjectMarksValidationSchema).optional(),
-    grade: z.string().optional(),
+    grade: z.enum(Grade as [string, ...string[]]).optional(),
     isPassed: z.boolean().optional(),
     isMarkSubmitted: z.boolean().optional(),
   }),
