@@ -1,12 +1,5 @@
 import { Model, Types } from 'mongoose';
-<<<<<<< HEAD
-import {
-  TAcademicSemesterCode,
-  TAcademicSemesterName,
-} from '../AcademicSemester/academicSemester.interface';
-=======
 import { TAcademicSemesterCode } from '../AcademicSemester/academicSemester.interface';
->>>>>>> 64b7b18f8a71be03147bb682e2490c86f253ffb3
 
 export type TUserName = {
   firstName: string;

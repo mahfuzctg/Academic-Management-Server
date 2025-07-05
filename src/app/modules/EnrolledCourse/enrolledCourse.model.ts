@@ -143,4 +143,10 @@ const EnrolledCourse = mongoose.model<TEnrolledCourse>(
   enrolledCourseSchema,
 );
 
+// Add indexes for better performance
+enrolledCourseSchema.index({ student: 1, course: 1, faculty: 1 });
+enrolledCourseSchema.index({ semesterRegistration: 1, student: 1 });
+enrolledCourseSchema.index({ faculty: 1 });
+enrolledCourseSchema.index({ course: 1 });
+
 export default EnrolledCourse;
