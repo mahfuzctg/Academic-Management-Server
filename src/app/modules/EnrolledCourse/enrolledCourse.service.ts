@@ -176,8 +176,8 @@ const createEnrolledCourseIntoDB = async (
           faculty: isOfferedCourseExists.faculty,
           isEnrolled: true,
           isExamDone: false,
-          isMarkSubmitted: false,
-          selectedSubjects,
+          isNextSemesterRegistrationDone: false,
+          selectedSubjects, // array of subject names
         },
       ],
       { session },
@@ -196,6 +196,8 @@ const createEnrolledCourseIntoDB = async (
 
     await session.commitTransaction();
     await session.endSession();
+
+    console.log('this is my result', result);
 
     return result;
   } catch (err: any) {
@@ -421,6 +423,8 @@ const updateEnrolledCourseMarksIntoDB = async (
     modifiedData.isPassed = gradePoints > 0;
   }
 
+  console.log('modifiedData is last ', modifiedData);
+
   const result = await EnrolledCourse.findByIdAndUpdate(
     enrolledCourse._id,
     {
@@ -435,6 +439,8 @@ const updateEnrolledCourseMarksIntoDB = async (
       new: true,
     },
   );
+
+  console.log('this is the content', result);
 
   return result;
 };

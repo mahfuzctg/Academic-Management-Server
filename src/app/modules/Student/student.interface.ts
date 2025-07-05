@@ -1,4 +1,5 @@
 import { Model, Types } from 'mongoose';
+
 import { TAcademicSemesterCode } from '../AcademicSemester/academicSemester.interface';
 
 export type TUserName = {
