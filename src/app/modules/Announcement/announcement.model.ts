@@ -4,10 +4,16 @@ import { TAnnouncement } from './announcement.interface';
 const announcementSchema = new Schema<TAnnouncement>(
   {
     title: { type: String, required: true, trim: true },
-    category: { type: String, required: true, trim: true },
-    date: { type: String, required: true },
-    profileImg: { type: String },
-    status: { type: String },
+    type: { type: String, required: true, trim: true },
+    startDate: { type: String, required: true },
+    endDate: { type: String, required: true },
+    priority: {
+      type: String,
+      required: true,
+      enum: ['low', 'medium', 'high'],
+      default: 'medium',
+    },
+    isActive: { type: Boolean, default: true },
     isDeleted: { type: Boolean, default: false },
   },
   {

@@ -1,9 +1,10 @@
 export type TAnnouncement = {
   title: string;
-  category: string;
-  date: string;
-  profileImg?: string;
-  status?: string;
+  type: string;
+  startDate: string;
+  endDate: string;
+  priority: 'low' | 'medium' | 'high';
+  isActive: boolean;
   isDeleted?: boolean;
 };
 
