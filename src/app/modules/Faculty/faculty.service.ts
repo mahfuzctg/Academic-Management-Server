@@ -27,12 +27,17 @@ const getAllFacultiesFromDB = async (query: Record<string, unknown>) => {
   };
 };
 
-const getSingleFacultyFromDB = async (id: string) => {
-  const result = await Faculty.findById(id).populate(
-    'academicDepartment academicFaculty',
-  );
+// const getSingleFacultyFromDB = async (id: string) => {
+//   const result = await Faculty.findById(id).populate(
+//     'academicDepartment academicFaculty',
+//   );
 
-  return result;
+//   return result;
+// };
+const getSingleFacultyFromDB = async (id: string) => {
+  return await Faculty.findById(id)
+    .populate('academicDepartment')
+    .populate('academicFaculty');
 };
 
 const updateFacultyIntoDB = async (id: string, payload: Partial<TFaculty>) => {

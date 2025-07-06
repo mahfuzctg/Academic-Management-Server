@@ -37,9 +37,7 @@ export const createStudentValidationSchema = z.object({
       dateOfBirth: z.string().optional(),
       email: z.string().email(),
       contactNo: z.string(),
-
       currentSemester: z.number().min(1).max(8).default(1),
-
       emergencyContactNo: z.string(),
       bloodGroup: z.enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']),
       presentAddress: z.string(),
@@ -83,9 +81,7 @@ export const updateStudentValidationSchema = z.object({
       email: z.string().email().optional(),
       contactNo: z.string().optional(),
       emergencyContactNo: z.string().optional(),
-
       currentSemester: z.number().min(1).max(8).default(1).optional(),
-
       bloodGroup: z
         .enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
         .optional(),

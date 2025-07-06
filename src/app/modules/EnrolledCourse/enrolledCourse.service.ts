@@ -299,63 +299,47 @@ const updateEnrolledCourseMarksIntoDB = async (
 ) => {
   const { studentId, courseId, courseMarks, subjectMarks } = payload;
   console.log({ subjectMarks });
-  const student = await Student.findOne({ id: studentId });
 
+  const student = await Student.findOne({ id: studentId });
   if (!student) {
     throw new AppError(httpStatus.NOT_FOUND, 'Student not found !');
   }
 
   const faculty = await Faculty.findOne({ id: facultyId }, { _id: 1 });
-
   if (!faculty) {
     throw new AppError(httpStatus.NOT_FOUND, 'Faculty not found !');
   }
 
   const course = await Course.findById(courseId);
-
   if (!course) {
     throw new AppError(httpStatus.NOT_FOUND, 'Course not found!');
   }
 
-  // // There is only one ongoing semester.
-  // const semesterRegistration = await SemesterRegistration.findOne({
-  //   status: 'ONGOING',
-  // });
-
-  // if (!semesterRegistration) {
-  //   throw new AppError(
-  //     httpStatus.NOT_FOUND,
-  //     'Semester registration not found!',
-  //   );
-  // }
-
-  // const offeredCourse = await OfferedCourse.findOne({
-  //   semesterRegistration: semesterRegistration._id,
-  //   course: course._id,
-  // });
-
-  // if (!offeredCourse) {
-  //   throw new AppError(httpStatus.NOT_FOUND, 'Offered course not found!');
-  // }
-
+  // Find the enrolled course with proper filtering
   const enrolledCourse = await EnrolledCourse.findOne({
-    // semesterRegistration: course.semesterRegistration,
-    // offeredCourse: course.offeredCourse,
     student: student._id,
     faculty: faculty._id,
+    course: courseId, // Add course filtering
   });
 
   if (!enrolledCourse) {
-    throw new AppError(httpStatus.FORBIDDEN, 'You are forbidden!');
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      'Enrolled course not found for this student, faculty, and course combination!',
+    );
   }
 
   const modifiedData: Record<string, any> = {};
 
+  // Handle subject marks (for courses with multiple subjects)
   if (subjectMarks && subjectMarks.length > 0) {
-    modifiedData.subjectMarks = subjectMarks.map((subjectMark) => {
-      const existingSubject = enrolledCourse.subjectMarks?.find(
+    // Merge with existing subject marks
+    const existingSubjectMarks = enrolledCourse.subjectMarks || [];
+    const updatedSubjectMarks = subjectMarks.map((subjectMark) => {
+      const existingSubject = existingSubjectMarks.find(
         (s) => s.subjectName === subjectMark.subjectName,
       );
+
       return {
         subjectName: subjectMark.subjectName,
         marks: {
@@ -365,30 +349,27 @@ const updateEnrolledCourseMarksIntoDB = async (
       };
     });
 
-    const totalMarksForSubjects =
-      modifiedData.subjectMarks?.reduce(
-        (
-          acc: number,
-          subject: {
-            marks: {
-              classTest1?: number;
-              classTest2?: number;
-              classTest3?: number;
-              classTest4?: number;
-              finalTerm?: number;
-            };
-          },
-        ) => {
-          const currentTotal =
-            (subject.marks.classTest1 || 0) +
-            (subject.marks.classTest2 || 0) +
-            (subject.marks.classTest3 || 0) +
-            (subject.marks.classTest4 || 0) +
-            (subject.marks.finalTerm || 0);
-          return acc + currentTotal;
-        },
-        0,
-      ) || 0;
+    // Add any existing subjects that weren't in the update
+    const updatedSubjectNames = subjectMarks.map((sm) => sm.subjectName);
+    const remainingSubjects = existingSubjectMarks.filter(
+      (es) => !updatedSubjectNames.includes(es.subjectName),
+    );
+
+    modifiedData.subjectMarks = [...updatedSubjectMarks, ...remainingSubjects];
+
+    // Calculate total marks for all subjects
+    const totalMarksForSubjects = modifiedData.subjectMarks.reduce(
+      (acc: number, subject: any) => {
+        const currentTotal =
+          (subject.marks.classTest1 || 0) +
+          (subject.marks.classTest2 || 0) +
+          (subject.marks.classTest3 || 0) +
+          (subject.marks.classTest4 || 0) +
+          (subject.marks.finalTerm || 0);
+        return acc + currentTotal;
+      },
+      0,
+    );
 
     const { grade, gradePoints } = calculateGradeAndPoints(
       totalMarksForSubjects,
@@ -396,26 +377,28 @@ const updateEnrolledCourseMarksIntoDB = async (
     modifiedData.grade = grade;
     modifiedData.gradePoints = gradePoints;
     modifiedData.isPassed = gradePoints > 0;
-  } else if (courseMarks) {
-    const currentCourseMarks = enrolledCourse.courseMarks;
+  }
+  // Handle course marks (for single subject courses)
+  else if (courseMarks) {
+    const currentCourseMarks = enrolledCourse.courseMarks || {};
 
-    modifiedData['courseMarks.classTest1'] =
-      courseMarks.classTest1 ?? currentCourseMarks.classTest1;
-    modifiedData['courseMarks.classTest2'] =
-      courseMarks.classTest2 ?? currentCourseMarks.classTest2;
-    modifiedData['courseMarks.classTest3'] =
-      courseMarks.classTest3 ?? currentCourseMarks.classTest3;
-    modifiedData['courseMarks.classTest4'] =
-      courseMarks.classTest4 ?? currentCourseMarks.classTest4;
-    modifiedData['courseMarks.finalExam'] =
-      courseMarks.finalExam ?? currentCourseMarks.finalExam;
+    // Create updated course marks object
+    const updatedCourseMarks = {
+      classTest1: courseMarks.classTest1 ?? currentCourseMarks.classTest1,
+      classTest2: courseMarks.classTest2 ?? currentCourseMarks.classTest2,
+      classTest3: courseMarks.classTest3 ?? currentCourseMarks.classTest3,
+      classTest4: courseMarks.classTest4 ?? currentCourseMarks.classTest4,
+      finalExam: courseMarks.finalExam ?? currentCourseMarks.finalExam,
+    };
+
+    modifiedData.courseMarks = updatedCourseMarks;
 
     const totalMarks =
-      (modifiedData['courseMarks.classTest1'] || 0) +
-      (modifiedData['courseMarks.classTest2'] || 0) +
-      (modifiedData['courseMarks.classTest3'] || 0) +
-      (modifiedData['courseMarks.classTest4'] || 0) +
-      (modifiedData['courseMarks.finalExam'] || 0);
+      (updatedCourseMarks.classTest1 || 0) +
+      (updatedCourseMarks.classTest2 || 0) +
+      (updatedCourseMarks.classTest3 || 0) +
+      (updatedCourseMarks.classTest4 || 0) +
+      (updatedCourseMarks.finalExam || 0);
 
     const { grade, gradePoints } = calculateGradeAndPoints(totalMarks);
     modifiedData.grade = grade;
@@ -423,20 +406,28 @@ const updateEnrolledCourseMarksIntoDB = async (
     modifiedData.isPassed = gradePoints > 0;
   }
 
+  // Override with payload values if provided
+  if (payload.grade !== undefined) {
+    modifiedData.grade = payload.grade;
+  }
+  if (payload.isPassed !== undefined) {
+    modifiedData.isPassed = payload.isPassed;
+  }
+  if (payload.isMarkSubmitted !== undefined) {
+    modifiedData.isMarkSubmitted = payload.isMarkSubmitted;
+  }
+
+  // Set exam done to true when marks are submitted
+  modifiedData.isExamDone = true;
+
   console.log('modifiedData is last ', modifiedData);
 
   const result = await EnrolledCourse.findByIdAndUpdate(
     enrolledCourse._id,
-    {
-      ...modifiedData,
-      grade: payload.grade,
-      isPassed: payload.isPassed,
-      isExamDone: true,
-      isMarkSubmitted: payload.isMarkSubmitted,
-      courseMarks: modifiedData.courseMarks,
-    },
+    modifiedData,
     {
       new: true,
+      runValidators: true,
     },
   );
 

@@ -11,31 +11,31 @@ const courseMarksSchema = new Schema<TEnrolledCourseMarks>(
     classTest1: {
       type: Number,
       min: 0,
-      max: 10,
+      max: 20,
       default: 0,
     },
     classTest2: {
       type: Number,
       min: 0,
-      max: 30,
+      max: 20,
       default: 0,
     },
     classTest3: {
       type: Number,
       min: 0,
-      max: 10,
+      max: 20,
       default: 0,
     },
     classTest4: {
       type: Number,
       min: 0,
-      max: 10,
+      max: 20,
       default: 0,
     },
     finalExam: {
       type: Number,
       min: 0,
-      max: 50,
+      max: 210,
       default: 0,
     },
   },
@@ -142,5 +142,11 @@ const EnrolledCourse = mongoose.model<TEnrolledCourse>(
   'EnrolledCourse',
   enrolledCourseSchema,
 );
+
+// Add indexes for better performance
+enrolledCourseSchema.index({ student: 1, course: 1, faculty: 1 });
+enrolledCourseSchema.index({ semesterRegistration: 1, student: 1 });
+enrolledCourseSchema.index({ faculty: 1 });
+enrolledCourseSchema.index({ course: 1 });
 
 export default EnrolledCourse;
