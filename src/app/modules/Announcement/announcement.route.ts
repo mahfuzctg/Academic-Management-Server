@@ -16,6 +16,18 @@ router.post(
 
 router.get('/', AnnouncementControllers.getAllAnnouncements);
 
+// Get announcements by user ID (authenticated user's announcements)
+router.get(
+  '/my-announcements',
+  auth(
+    USER_ROLE.superAdmin,
+    USER_ROLE.admin,
+    USER_ROLE.faculty,
+    USER_ROLE.student,
+  ),
+  AnnouncementControllers.getAnnouncementsByUserId,
+);
+
 router.get('/:id', AnnouncementControllers.getSingleAnnouncement);
 
 router.patch(

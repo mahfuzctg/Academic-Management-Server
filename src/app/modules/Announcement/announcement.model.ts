@@ -14,6 +14,8 @@ const announcementSchema = new Schema<TAnnouncement>(
       default: 'medium',
     },
     isActive: { type: Boolean, default: true },
+    createdBy: { type: String, required: true },
+    userRole: { type: String, required: true },
     isDeleted: { type: Boolean, default: false },
   },
   {

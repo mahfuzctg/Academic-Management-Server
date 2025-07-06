@@ -5,6 +5,8 @@ export type TAnnouncement = {
   endDate: string;
   priority: 'low' | 'medium' | 'high';
   isActive: boolean;
+  createdBy: string; // User ID who created the announcement
+  userRole: string; // Role of the user who created the announcement
   isDeleted?: boolean;
 };
 
