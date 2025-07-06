@@ -54,13 +54,3 @@ export const AcademicSemester = model<TAcademicSemester>(
   'AcademicSemester',
   acdemicSemesterSchema,
 );
-
-// Name Year
-//2030 Autumn => Created
-// 2031 Autumn
-//2030 Autumn => XXX
-//2030 Fall => Created
-
-// Autumn 01
-// Summer 02
-// Fall 03
