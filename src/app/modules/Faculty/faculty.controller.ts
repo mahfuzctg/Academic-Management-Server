@@ -5,7 +5,9 @@ import { FacultyServices } from './faculty.service';
 
 const getSingleFaculty = catchAsync(async (req, res) => {
   const { id } = req.params;
+
   const result = await FacultyServices.getSingleFacultyFromDB(id);
+  // this populates academicDepartment and academicFaculty
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

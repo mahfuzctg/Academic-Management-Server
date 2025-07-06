@@ -7,6 +7,7 @@ import { AcademicDepartmentRoutes } from '../modules/AcademicDepartment/academic
 import { AcademicFacultyRoutes } from '../modules/AcademicFaculty/academicFaculty.route';
 import { AcademicSemesterRoutes } from '../modules/AcademicSemester/academicSemester.route';
 import { AcademicYearRoutes } from '../modules/AcademicYear/academicYear.route';
+import { AnnouncementRoutes } from '../modules/Announcement/announcement.route';
 import { BlogRoutes } from '../modules/Blog/blog.route';
 import { EnrolledCourseRoutes } from '../modules/EnrolledCourse/enrolledCourse.route';
 import { FacultyRoutes } from '../modules/Faculty/faculty.route';
@@ -75,6 +76,10 @@ const moduleRoutes = [
   {
     path: '/jobs',
     route: JobRoutes,
+  },
+  {
+    path: '/announcements',
+    route: AnnouncementRoutes,
   },
   {
     path: '/auth',
